@@ -1,0 +1,453 @@
+[
+  {
+    'id': 1,
+    'product_type': '女装',
+    'one_id_id': 1,
+    'category': [
+      {
+        'id': 1,
+        'product_type': '秋上新',
+        'two_id_id': 1
+      },
+      {
+        'id': 2,
+        'product_type': '连衣裙',
+        'two_id_id': 1
+      },
+      {
+        'id': 3,
+        'product_type': '毛针织衫',
+        'two_id_id': 1
+      },
+      {
+        'id': 4,
+        'product_type': '短外套',
+        'two_id_id': 1
+      },
+      {
+        'id': 5,
+        'product_type': '风衣',
+        'two_id_id': 1
+      },
+      {
+        'id': 6,
+        'product_type': '衬衫',
+        'two_id_id': 1
+      },
+      {
+        'id': 7,
+        'product_type': '裤子',
+        'two_id_id': 1
+      },
+      {
+        'id': 8,
+        'product_type': '卫衣绒衫',
+        'two_id_id': 1
+      },
+      {
+        'id': 9,
+        'product_type': '毛衣',
+        'two_id_id': 1
+      },
+      {
+        'id': 10,
+        'product_type': '牛仔裤',
+        'two_id_id': 1
+      },
+      {
+        'id': 11,
+        'product_type': '牛仔外套',
+        'two_id_id': 1
+      },
+      {
+        'id': 12,
+        'product_type': '毛呢外套',
+        'two_id_id': 1
+      },
+      {
+        'id': 13,
+        'product_type': '休闲裤',
+        'two_id_id': 1
+      },
+      {
+        'id': 14,
+        'product_type': '半身裙',
+        'two_id_id': 1
+      },
+      {
+        'id': 15,
+        'product_type': '长袖连衣裙',
+        'two_id_id': 1
+      },
+      {
+        'id': 16,
+        'product_type': '阔腿裤',
+        'two_id_id': 1
+      },
+      {
+        'id': 17,
+        'product_type': '西装',
+        'two_id_id': 1
+      },
+      {
+        'id': 18,
+        'product_type': '时尚套装',
+        'two_id_id': 1
+      },
+      {
+        'id': 19,
+        'product_type': 'T恤',
+        'two_id_id': 1
+      },
+      {
+        'id': 20,
+        'product_type': '长风衣',
+        'two_id_id': 1
+      },
+      {
+        'id': 21,
+        'product_type': '蕾丝衫/雪纺衫',
+        'two_id_id': 1
+      },
+      {
+        'id': 22,
+        'product_type': '大码女装',
+        'two_id_id': 1
+      },
+      {
+        'id': 23,
+        'product_type': '大码外套',
+        'two_id_id': 1
+      },
+      {
+        'id': 24,
+        'product_type': '大码连衣裙',
+        'two_id_id': 1
+      },
+      {
+        'id': 25,
+        'product_type': '红人推荐',
+        'two_id_id': 1
+      },
+      {
+        'id': 26,
+        'product_type': '私服名媛',
+        'two_id_id': 1
+      },
+      {
+        'id': 27,
+        'product_type': '甜美清新',
+        'two_id_id': 1
+      },
+      {
+        'id': 28,
+        'product_type': '文艺复古',
+        'two_id_id': 1
+      },
+      {
+        'id': 29,
+        'product_type': '街头潮流',
+        'two_id_id': 1
+      },
+      {
+        'id': 30,
+        'product_type': '原创设计',
+        'two_id_id': 1
+      },
+      {
+        'id': 31,
+        'product_type': '通勤丽人',
+        'two_id_id': 1
+      },
+      {
+        'id': 32,
+        'product_type': '婚纱礼服',
+        'two_id_id': 1
+      },
+      {
+        'id': 33,
+        'product_type': '民族服装',
+        'two_id_id': 1
+      }
+    ]
+  },
+  {
+    'id': 2,
+    'product_type': '男装',
+    'one_id_id': 1,
+    'category': [
+      {
+        'id': 34,
+        'product_type': '品质好物',
+        'two_id_id': 2
+      },
+      {
+        'id': 35,
+        'product_type': 'T恤',
+        'two_id_id': 2
+      },
+      {
+        'id': 36,
+        'product_type': '衬衫',
+        'two_id_id': 2
+      },
+      {
+        'id': 37,
+        'product_type': 'POLO衫',
+        'two_id_id': 2
+      },
+      {
+        'id': 38,
+        'product_type': '外套',
+        'two_id_id': 2
+      },
+      {
+        'id': 39,
+        'product_type': '休闲裤',
+        'two_id_id': 2
+      },
+      {
+        'id': 40,
+        'product_type': '牛仔裤',
+        'two_id_id': 2
+      },
+      {
+        'id': 41,
+        'product_type': '卫衣',
+        'two_id_id': 2
+      },
+      {
+        'id': 42,
+        'product_type': '夹克',
+        'two_id_id': 2
+      },
+      {
+        'id': 43,
+        'product_type': '风衣',
+        'two_id_id': 2
+      },
+      {
+        'id': 44,
+        'product_type': '西装',
+        'two_id_id': 2
+      },
+      {
+        'id': 45,
+        'product_type': '牛仔外套',
+        'two_id_id': 2
+      },
+      {
+        'id': 46,
+        'product_type': '棒球服',
+        'two_id_id': 2
+      },
+      {
+        'id': 47,
+        'product_type': '针织衫',
+        'two_id_id': 2
+      },
+      {
+        'id': 48,
+        'product_type': '运动裤',
+        'two_id_id': 2
+      },
+      {
+        'id': 49,
+        'product_type': '九分裤',
+        'two_id_id': 2
+      },
+      {
+        'id': 50,
+        'product_type': '皮衣',
+        'two_id_id': 2
+      },
+      {
+        'id': 51,
+        'product_type': '套装',
+        'two_id_id': 2
+      },
+      {
+        'id': 52,
+        'product_type': '开衫',
+        'two_id_id': 2
+      },
+      {
+        'id': 53,
+        'product_type': '马甲',
+        'two_id_id': 2
+      },
+      {
+        'id': 54,
+        'product_type': '呢大衣',
+        'two_id_id': 2
+      },
+      {
+        'id': 55,
+        'product_type': '中老年',
+        'two_id_id': 2
+      },
+      {
+        'id': 56,
+        'product_type': '情侣装',
+        'two_id_id': 2
+      },
+      {
+        'id': 57,
+        'product_type': '大码',
+        'two_id_id': 2
+      },
+      {
+        'id': 58,
+        'product_type': '民族风',
+        'two_id_id': 2
+      },
+      {
+        'id': 59,
+        'product_type': '专柜大牌',
+        'two_id_id': 2
+      },
+      {
+        'id': 60,
+        'product_type': '明星网红',
+        'two_id_id': 2
+      },
+      {
+        'id': 61,
+        'product_type': '原创设计',
+        'two_id_id': 2
+      }
+    ]
+  },
+  {
+    'id': 3,
+    'product_type': '内衣',
+    'one_id_id': 1,
+    'category': [
+      {
+        'id': 62,
+        'product_type': '法式内衣',
+        'two_id_id': 3
+      },
+      {
+        'id': 63,
+        'product_type': '无钢圈内衣',
+        'two_id_id': 3
+      },
+      {
+        'id': 64,
+        'product_type': '内裤女',
+        'two_id_id': 3
+      },
+      {
+        'id': 65,
+        'product_type': '文胸',
+        'two_id_id': 3
+      },
+      {
+        'id': 66,
+        'product_type': '内裤男',
+        'two_id_id': 3
+      },
+      {
+        'id': 67,
+        'product_type': '长袖睡衣',
+        'two_id_id': 3
+      },
+      {
+        'id': 68,
+        'product_type': '睡裙',
+        'two_id_id': 3
+      },
+      {
+        'id': 69,
+        'product_type': '真丝睡衣',
+        'two_id_id': 3
+      },
+      {
+        'id': 70,
+        'product_type': '丝袜',
+        'two_id_id': 3
+      },
+      {
+        'id': 71,
+        'product_type': '船袜',
+        'two_id_id': 3
+      },
+      {
+        'id': 72,
+        'product_type': '情侣睡衣',
+        'two_id_id': 3
+      },
+      {
+        'id': 73,
+        'product_type': '抹胸',
+        'two_id_id': 3
+      },
+      {
+        'id': 74,
+        'product_type': '背心',
+        'two_id_id': 3
+      },
+      {
+        'id': 75,
+        'product_type': '睡袍',
+        'two_id_id': 3
+      },
+      {
+        'id': 76,
+        'product_type': '男士睡衣',
+        'two_id_id': 3
+      },
+      {
+        'id': 77,
+        'product_type': '塑身衣',
+        'two_id_id': 3
+      },
+      {
+        'id': 78,
+        'product_type': '内衣套装',
+        'two_id_id': 3
+      },
+      {
+        'id': 79,
+        'product_type': '打底裤',
+        'two_id_id': 3
+      },
+      {
+        'id': 80,
+        'product_type': '连体睡衣',
+        'two_id_id': 3
+      },
+      {
+        'id': 81,
+        'product_type': '聚拢文胸',
+        'two_id_id': 3
+      },
+      {
+        'id': 82,
+        'product_type': '男士袜子',
+        'two_id_id': 3
+      },
+      {
+        'id': 83,
+        'product_type': '棉袜女',
+        'two_id_id': 3
+      },
+      {
+        'id': 84,
+        'product_type': '卡通睡衣',
+        'two_id_id': 3
+      },
+      {
+        'id': 85,
+        'product_type': '无痕内裤',
+        'two_id_id': 3
+      },
+      {
+        'id': 86,
+        'product_type': '少女文胸',
+        'two_id_id': 3
+      }
+    ]
+  }
+]
