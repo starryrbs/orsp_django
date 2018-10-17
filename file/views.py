@@ -1,8 +1,18 @@
 from django.shortcuts import render
 from django.http import HttpResponse
+from orsp_django import settings
 # Create your views here.
 def uploadFile(request):
-    pass
+    # 此处可以接收文件和字符串
+    f1 = request.FILES['file']
+    print(f1)
+    fname = '{0}/pic/{1}'.format(settings.STATICFILES_DIRS[0], f1.name)
+    with open(fname, 'wb') as pic:
+        for c in f1.chunks():
+            pic.write(c)
+    return HttpResponse("成功")
+
+# 设置保存的文件名
 
 # 下载文件
 def downloadFile(request):

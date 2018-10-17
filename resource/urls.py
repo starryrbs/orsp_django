@@ -8,7 +8,10 @@ app_name="resource"
 urlpatterns = [
     # 获取商品类型
     url(r'^getgoodtypetwo/',views.getGoodTypeTwo ,name="getgoodtype"),
+    # 获取三级类型
     url(r'^getgoodtypethree/(?P<good_type>.*)',views.getGoodTypeThree ,name="getgoodtype"),
+    # 到mongodb拿到商品数据
+    url(r'^getgoods', views.getGoods, name="getgoods"),
     # 添加收藏
     url(r'^addcollect/',views.addCollect ,name="addcollect"),
     url(r'^cancelcollect/',views.cancelCollect ,name="cancelcollect"),
@@ -20,9 +23,6 @@ urlpatterns = [
     url(r'^commentgoods/',views.commentGoods ,name="commentgoods"),
     url(r'insertdata/', views.insertData, name='insertData'),
 ]
+
 '''
-
-
-
-
 '''

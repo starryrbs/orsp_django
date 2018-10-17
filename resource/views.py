@@ -2,6 +2,7 @@ from resource.models import *
 from django.shortcuts import render, HttpResponse
 from django.http import JsonResponse
 import json
+from utils.mongodb_connect import *
 import re
 
 # Create your views here.
@@ -74,19 +75,7 @@ def addCollect(request):
 def cancelCollect(request):
     pass
 
-'''
-name=models.CharField(max_length=15)
-    price=models.FloatField(default=0.00)
-    category=models.IntegerField(default=0)
-    # 销量
-    pnum=models.IntegerField(default=0)
-    imgurl=models.CharField(max_length=60)
-    description=models.CharField(max_length=100)
-    # 上传者
-    user=models.OneToOneField(to=Info,to_field='id',on_delete=models.CASCADE,default=1)
-    upload_time=models.DateTimeField(null=True)
-    product_type=models.ForeignKey(to_field='id',to=Product_type_three,on_delete=models.CASCADE,default=1)
-'''
+
 # 上传商品
 # 上传商品要指定一个三级商品类型,价格,图片的url,描述,用户id,上传时间是当前时间,名字
 def uploadGoods(request):
@@ -112,7 +101,16 @@ def uploadGoods(request):
         # 请求失败
         return JsonResponse({"code":"510"})
 
-
+# 拿到mongodb里面的商品数据
+def getGoods(request):
+    data = db.taobao_goods.find().limit(20)
+    res_data=[]
+    for i in data:
+        print(i)
+        del i["_id"]
+        res_data.append(i)
+    print(1,res_data)
+    return HttpResponse(json.dumps(res_data))
 # 下架商品
 def downloadGoods(request):
     pass
