@@ -39,7 +39,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'user',
     'file',
-    'resource'
+    'resource',
 ]
 
 MIDDLEWARE = [
@@ -130,6 +130,12 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media').replace('\\', '/')
+
+STATICFILES_DIRS = (
+    os.path.join(BASE_DIR, "media"),
+)
 # 跨域设置
 CORS_ORIGIN_ALLOW_ALL = False
 CORS_ORIGIN_WHITELIST = (
