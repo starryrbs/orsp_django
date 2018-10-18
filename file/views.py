@@ -1,6 +1,7 @@
 from django.shortcuts import render
 from django.http import HttpResponse
 from orsp_django import settings
+import uuid
 # Create your views here.
 def uploadFile(request):
     # 此处可以接收文件和字符串

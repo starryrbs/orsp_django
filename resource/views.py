@@ -3,6 +3,7 @@ from django.shortcuts import render, HttpResponse
 from django.http import JsonResponse
 import json
 from utils.mongodb_connect import *
+from utils.mongodb_connect import db
 import re
 
 # Create your views here.
@@ -104,6 +105,22 @@ def uploadGoods(request):
 # 拿到mongodb里面的商品数据
 def getGoods(request):
     data = db.taobao_goods.find().limit(20)
+    res_data=[]
+    for i in data:
+        print(i)
+        del i["_id"]
+        res_data.append(i)
+    print(1,res_data)
+    return HttpResponse(json.dumps(res_data))
+
+def searchGoods(request):
+    print(request.GET.get('good'))
+    good=request.GET.get('good')
+    # db.company.find({\$or: [{catagory: “IT”}, {region: “Beijing”}]});
+    # find({"$or":[{"catagory":good},{"belong_name":good}]})
+    data = db.taobao_goods.find({"$or":[{"belong_to":good},{"belong_name":good},{"title":good},{"address":good}]}).limit(1000).skip(100)
+    # aa = db.taobao_goods.find({"$or":[{"belong_to":good},{"belong_name":good},{"title":good},{"address":good}]})
+    # print(aa)
     res_data=[]
     for i in data:
         print(i)
