@@ -25,3 +25,15 @@ class City(models.Model):
     city_name=models.CharField(max_length=10)
     c_p=models.ForeignKey(to=Province,to_field='id',on_delete=models.CASCADE,default=1)
 
+# 用户地址表
+
+class Address(models.Model):
+    user=models.ForeignKey(to=User,to_field='id',on_delete=models.CASCADE,default=1)
+    provice=models.ForeignKey(to=Province,to_field='id',on_delete=models.CASCADE,default=1)
+    city=models.ForeignKey(to=City,to_field='id',on_delete=models.CASCADE,default=1)
+
+# 用户给管理员留言表
+class AdminMsg(models.Model):
+    user=models.ForeignKey(to=User,to_field='id',on_delete=models.CASCADE,default=1)
+    msg=models.CharField(max_length=256)
+    msg_time=models.DateTimeField(auto_now_add=True)

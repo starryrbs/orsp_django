@@ -29,10 +29,6 @@ urlpatterns = [
     url(r'changepsd/',views.changePsd,name='changepsd'),
     # # 上传头像 是一个 url地址+图片名字
     url(r'uploadicon/',views.uploadIcon,name='uploadicon'),
-    # 用户上传文件
-    url(r'uploadfile/',views.uploadFile,name='uploadfile'),
-    # 用户下载文件
-    url(r'downloadfile/',views.downloadFile,name='downloadfile'),
     # 用户查看积分,头像,名称,等基本信息
     url(r'showuser/',views.showUser,name='showuser'),
     # 给管理员留言功能

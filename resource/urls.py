@@ -19,6 +19,7 @@ urlpatterns = [
     url(r'^uploadgoods/',views.uploadGoods ,name="uploadgoods"),
     # 上传商品
     url(r'^searchGoods/', views.searchGoods, name="uploadgoods"),
+
     url(r'^downloadgoods/',views.downloadGoods ,name="downloadgoods"),
     url(r'^generateorder/',views.generateOrder ,name="generateorder"),
     url(r'^showgoods/',views.showGoods ,name="showgoods"),

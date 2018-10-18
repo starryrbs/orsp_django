@@ -20,7 +20,7 @@ from django.conf.urls import include
 from . import views
 app_name="file"
 urlpatterns = [
-    # 上传文件
+    # 这里是上传文件已经成功,存储文件信息与用户信息
     url(r'^uploadfile',views.uploadFile,name="uploadfile"),
     # # 下载文件
     url(r'^downloadfile',views.downloadFile,name="downloadfile"),
