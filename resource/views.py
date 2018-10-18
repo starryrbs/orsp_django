@@ -116,9 +116,10 @@ def getGoods(request):
 def searchGoods(request):
     print(request.GET.get('good'))
     good=request.GET.get('good')
+    index=int(request.GET.get('index'))
     # db.company.find({\$or: [{catagory: “IT”}, {region: “Beijing”}]});
     # find({"$or":[{"catagory":good},{"belong_name":good}]})
-    data = db.taobao_goods.find({"$or":[{"belong_to":good},{"belong_name":good},{"title":good},{"address":good}]}).limit(1000).skip(100)
+    data = db.taobao_goods.find({"$or":[{"belong_to":good},{"belong_name":good},{"title":{"$regex":good}},{"address":good}]}).limit(60).skip(index)
     # aa = db.taobao_goods.find({"$or":[{"belong_to":good},{"belong_name":good},{"title":good},{"address":good}]})
     # print(aa)
     res_data=[]
