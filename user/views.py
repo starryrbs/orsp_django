@@ -21,8 +21,10 @@ def login(request):
             print(res_user[0]["password"])
             # 校验密码
             res_psd = check_password_hash(res_user[0]["password"], password)
+            print(res_psd)
             if res_psd:
                 res_token = jwtEncoding({"telephone": telephone, "password": password})
+                print("token",res_token)
                 # 生成token
                 response = JsonResponse({"code": "206"})
                 response["token"] = res_token
@@ -54,6 +56,28 @@ def isExist(request):
     else:
         # 请求失败
         return JsonResponse({"code": "510"})
+
+# 判断token是否正确
+def judgeToken(request):
+    if request.method=="POST":
+        try:
+            token = request.META.get("HTTP_TOKEN")
+            print("token", token)
+            # 拿token中的数据
+            data = jwt.decode(token, SECRECT_KEY, audience='webkit', algorithms=['HS256'])
+            print(data['some']["telephone"])
+            telephone = data['some']["telephone"]
+            res = User.objects.filter(telephone=telephone)
+            if res:
+
+                return JsonResponse({"code": "212"})
+            else:
+                return JsonResponse({"code": "517"})
+        except Exception as ex:
+            print(ex)
+            return JsonResponse({"code": "517"})
+    else:
+        return JsonResponse({"code": "517"})
 
 
 # 用户注册

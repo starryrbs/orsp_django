@@ -1,20 +1,35 @@
 from django.shortcuts import render
-from django.http import HttpResponse
+from django.http import HttpResponse,JsonResponse
 from orsp_django import settings
 import uuid
+from file.models import *
+import json
 # Create your views here.
 def uploadFile(request):
     # 此处可以接收文件和字符串
-    f1 = request.FILES['file']
+    f1 = request.FILES['usericon']
     print(f1)
-    fname = '{0}/pic/{1}'.format(settings.STATICFILES_DIRS[0], f1.name)
+    # 文件名
+    filename=str(uuid.uuid4())+'.'+f1.name.split('.')[1]
+    fname = '{0}/pic/{1}'.format(settings.STATICFILES_DIRS[0],filename)
+    '''
+    fname = '%s/pic/%s' % (settings.STATICFILES_DIRS[0], str(uuid.uuid4())+'.'+f1.name.split('.')[1])
+    '''
+    print(fname)
     with open(fname, 'wb') as pic:
         for c in f1.chunks():
             pic.write(c)
-    return HttpResponse("成功")
+    return JsonResponse({
+        "name":filename
+    })
 
 # 设置保存的文件名
-
+def saveFile(request):
+    print(json.loads(request.body))
+    data=json.loads(request.body)
+    print("data",data)
+    res=Resource.objects.create(**data)
+    return HttpResponse("ok")
 # 下载文件
 def downloadFile(request):
     return HttpResponse("下载文件")

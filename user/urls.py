@@ -23,6 +23,7 @@ urlpatterns = [
     url(r'login/', views.login, name="login"),
     # 判断用户是否存在
     url(r'isexist/',views.isExist,name='isexist'),
+    url(r'judgetoken/',views.judgeToken,name='judgetoken'),
     # 注册
     url(r'regist/',views.register,name='regist'),
     # 修改密码

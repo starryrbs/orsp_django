@@ -21,7 +21,9 @@ from . import views
 app_name="file"
 urlpatterns = [
     # 这里是上传文件已经成功,存储文件信息与用户信息
-    url(r'^uploadfile',views.uploadFile,name="uploadfile"),
+    url(r'^uploadfile/',views.uploadFile,name="uploadfile"),
+    # 保存文件的信息
+    url(r'^savefile/',views.saveFile,name="uploadfile"),
     # # 下载文件
     url(r'^downloadfile',views.downloadFile,name="downloadfile"),
     # # 取消上传的文件

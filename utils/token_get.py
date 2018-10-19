@@ -7,7 +7,7 @@ from flask import Blueprint, request
 
 SECRECT_KEY="orsp"
 def jwtEncoding(some, aud='webkit'):
-    datetimeInt = datetime.datetime.utcnow() + datetime.timedelta(seconds=180)
+    datetimeInt = datetime.datetime.utcnow() + datetime.timedelta(hours=180)
     print(datetimeInt)
     option = {
         'iss': 'jobapp.com',

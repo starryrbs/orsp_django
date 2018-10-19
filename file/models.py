@@ -15,6 +15,8 @@ class Resource(models.Model):
     like_num=models.IntegerField(default=0)
     share_num=models.IntegerField(default=0)
     title=models.CharField(null=True,max_length=80)
+    describe=models.CharField(null=True,max_length=80)
+    resourceType=models.CharField(null=True,max_length=80)
 #     用户收藏表
 class Collect(models.Model):
     user=models.ForeignKey(to=User,to_field='id',on_delete=models.CASCADE,default=1)
