@@ -85,9 +85,9 @@ DATABASES = {
         # 'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
         'NAME': 'dj_orsp',
         'USER': 'root',
-        'PASSWORD': '',
-        'HOST': '127.0.0.1',
-        'PORT': '3307',
+        'PASSWORD': '13866015127rbs',
+        'HOST': 'cdb-4hg425ql.gz.tencentcdb.com',
+        'PORT': '10034',
     }
 }
 
