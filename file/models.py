@@ -1,6 +1,9 @@
 from django.db import models
 from user.models import User
 # Create your models here.
+# 资源类型表
+class ResourceType(models.Model):
+    name=models.CharField(max_length=20)
 
 # 这是文件资源的信息表
 class Resource(models.Model):
@@ -16,8 +19,9 @@ class Resource(models.Model):
     share_num=models.IntegerField(default=0)
     title=models.CharField(null=True,max_length=80)
     describe=models.CharField(null=True,max_length=80)
-    resourceType=models.CharField(null=True,max_length=80)
-#     用户收藏表
+    resourceTypeId=models.ForeignKey(to=ResourceType,to_field='id',on_delete=models.CASCADE,default=1)
+    # 用户收藏表
 class Collect(models.Model):
     user=models.ForeignKey(to=User,to_field='id',on_delete=models.CASCADE,default=1)
     resource=models.ForeignKey(to=Resource,to_field='id',on_delete=models.CASCADE,default=1)
+

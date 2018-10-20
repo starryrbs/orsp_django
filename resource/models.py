@@ -63,6 +63,16 @@ class Order(models.Model):
     sellernum = models.IntegerField(default=1)
     buyernum = models.IntegerField(default=1)
     status=models.CharField(max_length=10,null=True)
+#     商品
+    good=models.ForeignKey(to=Products,to_field='id',on_delete=models.CASCADE, default=1)
+
+# 订单状态表
+class Status(models.Model):
+    # 保障金  0 表示买家保障金未交 1表示买家保障金已交 2 表示卖家保障金未交 3表示卖家保障金已交
+    guaranty=models.IntegerField(default=0)
+    # 状态的名字
+    # 交易成功,没有交易,正在交易中
+    statusName=models.CharField(max_length=20)
 
 
 '''
