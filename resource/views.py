@@ -5,6 +5,7 @@ import json
 from utils.mongodb_connect import *
 from utils.mongodb_connect import db
 import re
+from utils.formatDatatime import formDatatime
 
 # Create your views here.
 # 获取商品类型
@@ -101,6 +102,23 @@ def uploadGoods(request):
     else:
         # 请求失败
         return JsonResponse({"code":"510"})
+
+# 根据用户id查看用户上传的商品
+def seeGoodsById(request):
+    if request.method=="POST":
+        id = json.loads(request.body)["id"]
+        print(id)
+    #     去用户上传商品表查询所有的信息
+        res=list(Products.objects.filter(user_id=id).values())
+        print(1111111111111,res)
+        if res:
+            print(res)
+            res=formDatatime(res)
+            return HttpResponse(json.dumps(res))
+        else:
+            return JsonResponse({"code":"519"})
+    else:
+        return JsonResponse({"code":"518"})
 
 # 拿到mongodb里面的商品数据
 def getGoods(request):

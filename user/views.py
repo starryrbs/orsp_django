@@ -61,7 +61,7 @@ def isExist(request):
 def judgeToken(request):
     if request.method=="POST":
         # try:
-            token = json.loads(request.body)["headers"]["token"]
+            token = request.META.get("HTTP_TOKEN")
             print("token", token)
             # 拿token中的数据
             SECRECT_KEY = "orsp"
@@ -70,9 +70,10 @@ def judgeToken(request):
             telephone = data['some']["telephone"]
             res = list(User.objects.filter(telephone=telephone).values())
             print(res[0]["id"])
-            res_name=list(Info.objects.filter(id=res[0]["id"]).values())[0]["user_name"]
-            if res_name:
-                return JsonResponse({"name": res_name})
+            res_data=list(Info.objects.filter(id=res[0]["id"]).values())
+            print(res_data)
+            if res_data:
+                return JsonResponse({"id": res_data[0]["id"],"user_name":res_data[0]["user_name"]})
             else:
                 return JsonResponse({"code": "517"})
         # except Exception as ex:
