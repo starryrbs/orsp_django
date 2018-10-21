@@ -24,4 +24,9 @@ class Resource(models.Model):
 class Collect(models.Model):
     user=models.ForeignKey(to=User,to_field='id',on_delete=models.CASCADE,default=1)
     resource=models.ForeignKey(to=Resource,to_field='id',on_delete=models.CASCADE,default=1)
+    
+# 用户下载文件资源表
+class Download(models.Model):
+    user=models.ForeignKey(to=User,to_field='id',on_delete=models.CASCADE,default=1)
+    file=models.ForeignKey(to=Resource,to_field='id',on_delete=models.CASCADE,default=1)
 

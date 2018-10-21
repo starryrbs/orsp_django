@@ -37,3 +37,6 @@ class AdminMsg(models.Model):
     user=models.ForeignKey(to=User,to_field='id',on_delete=models.CASCADE,default=1)
     msg=models.CharField(max_length=256)
     msg_time=models.DateTimeField(auto_now_add=True)
+
+
+#
