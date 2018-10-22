@@ -25,7 +25,8 @@ urlpatterns = [
     # 保存文件的信息
     url(r'^savefile/',views.saveFile,name="uploadfile"),
     # # 下载文件
-    url(r'^downloadfile',views.downloadFile,name="downloadfile"),
+    url(r'^downloadfile',views.downloadfile,name="downloadfile"),
+    url(r'^checkdownloadfile',views.checkdownloadfile,name="checkdownloadfile"),
     # # 取消上传的文件
     url(r'^cancelfile',views.cancelfile,name="cancelfile"),
     # # 查看文件信息(包括文件名,被下载次数,上传人,评论信息)
