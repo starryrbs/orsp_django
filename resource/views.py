@@ -192,13 +192,25 @@ def generateOrder(request):
 def paymentGuaranty(request):
     if request.method=="POST":
         id = json.loads(request.body)["id"]
+        selectAddressByUser = json.loads(request.body)["selectAddressByUser"]
+        selectExpressByUser = json.loads(request.body)["selectExpressByUser"]
         print(id)
-        res=db.order.update({"id": id}, {'$set': {"buyerSelectGood.guarantyStatus": 1}})
+        res=db.order.update({"id": id}, {'$set': {"buyerSelectGood.guarantyStatus": 1,"buyerSelectGood.selectAddressByUser":selectAddressByUser,"buyerSelectGood.selectExpressByUser":selectExpressByUser}})
         print(res)
-        return JsonResponse({"code":"214"})
+        return JsonResponse({"code":"215"})
     else:
         return JsonResponse({"code":"520"})
     # 查看商品详情
+
+# 查看我的订单
+def seeMyOrder(request):
+    id=json.loads(request.body)["id"]
+    res=list(db.order.find({"buyerSelectGood.user_id": str(id)}))
+    print(res)
+    for i in res:
+        del i["_id"]
+    print(res)
+    return HttpResponse(json.dumps(res))
 def showGoods(request):
     pass
 

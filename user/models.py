@@ -35,6 +35,8 @@ class Address(models.Model):
     city=models.ForeignKey(to=City,to_field='id',on_delete=models.CASCADE,default=1)
     concact_name=models.CharField(max_length=10,null=True)
     concact_telephone=models.CharField(max_length=11,null=True)
+    # 默认地址
+    default=models.IntegerField(default=0)
 # 用户给管理员留言表
 class AdminMsg(models.Model):
     user=models.ForeignKey(to=User,to_field='id',on_delete=models.CASCADE,default=1)
