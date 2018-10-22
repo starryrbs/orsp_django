@@ -64,7 +64,7 @@ def downloadfile(request):
     else:
         return JsonResponse({"code": "510"})
 
-def readFile(filename, chunk_size=1):
+def readFile(filename, chunk_size=512):
     """
     缓冲流下载文件方法
     :param filename:
