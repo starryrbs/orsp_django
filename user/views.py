@@ -177,6 +177,37 @@ def uploadIcon(request):
         return JsonResponse({"code": "510"})
 
 
+# 根据用户id查询用户地址
+def getAddresById(request):
+    if request.method == 'POST':
+        id=json.loads(request.body)["id"]
+        # 去查询手机号
+        res=list(Address.objects.filter(user_id=id).values())
+        print("查询地址结果",res)
+        for r in res:
+            print(City.objects.filter(id=r["city_id"]).values('city_name'))
+            r["provice_id"]=list(Province.objects.filter(id=r["provice_id"]).values('province_name'))[0]["province_name"]
+            r["city_id"]=list(City.objects.filter(id=r["city_id"]).values('city_name'))[0]["city_name"]
+        print(res)
+        return HttpResponse(json.dumps(res))
+    else:
+        return JsonResponse({"code": "510"})
+
+
+# 确认支付担保金
+def generateGuaranty(request,money):
+    print(money)
+    context={}
+    context["money"]=money
+    return render(request,'index.html',context=context)
+
+def acquireGuaranty(request):
+    if request.method=="POST":
+        money=json.loads(request.body)["money"]
+        print(money)
+        return HttpResponse('<a>ok</a>')
+    else:
+        return JsonResponse({"code": "510"})
 # 用户上传文件
 def uploadFile(request):
     pass

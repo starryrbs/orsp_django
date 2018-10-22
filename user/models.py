@@ -18,6 +18,7 @@ class Info(models.Model):
     email=models.CharField(max_length=40,null=True)
     icon=models.CharField(max_length=80,null=True)
     one=models.CharField(max_length=50,null=True)
+    # 用户积分
     integral=models.IntegerField(default=1)
 class Province(models.Model):
     province_name=models.CharField(max_length=10)
@@ -32,7 +33,8 @@ class Address(models.Model):
     user=models.ForeignKey(to=User,to_field='id',on_delete=models.CASCADE,default=1)
     provice=models.ForeignKey(to=Province,to_field='id',on_delete=models.CASCADE,default=1)
     city=models.ForeignKey(to=City,to_field='id',on_delete=models.CASCADE,default=1)
-
+    concact_name=models.CharField(max_length=10,null=True)
+    concact_telephone=models.CharField(max_length=11,null=True)
 # 用户给管理员留言表
 class AdminMsg(models.Model):
     user=models.ForeignKey(to=User,to_field='id',on_delete=models.CASCADE,default=1)

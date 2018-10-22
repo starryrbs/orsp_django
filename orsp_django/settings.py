@@ -140,6 +140,7 @@ STATICFILES_DIRS = (
 CORS_ORIGIN_ALLOW_ALL = False
 CORS_ORIGIN_WHITELIST = (
       'localhost:63343',
+      'localhost:63342',
       'localhost:8080',
     # '0.0.0.0/0'
 )

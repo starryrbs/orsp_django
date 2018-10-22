@@ -30,6 +30,12 @@ urlpatterns = [
     url(r'changepsd/',views.changePsd,name='changepsd'),
     # # 上传头像 是一个 url地址+图片名字
     url(r'uploadicon/',views.uploadIcon,name='uploadicon'),
+    # 根据用户id查询用户的所有地址信息
+    url(r'getaddresbyid/', views.getAddresById, name='getaddresbyid'),
+    # 生成担保金确认界面
+    url(r'generateguaranty/(?P<money>\d+)', views.generateGuaranty, name='generateguaranty'),
+    # 接收确认的担保金
+    url(r'acquireguaranty/', views.acquireGuaranty, name='acquireguaranty'),
     # 用户查看积分,头像,名称,等基本信息
     url(r'showuser/',views.showUser,name='showuser'),
     # 给管理员留言功能

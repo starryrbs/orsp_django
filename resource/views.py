@@ -4,9 +4,11 @@ from django.http import JsonResponse
 import json
 import time
 from utils.mongodb_connect import *
-from utils.mongodb_connect import db
+from utils.mongodb_connect import *
 import re
-from utils.formatDatatime import formDatatime
+import uuid
+from utils.formatDatatime import formDatatime,timestamp_from_objectid
+from utils.objectId_time import general_obj_from_time
 from bson.objectid import ObjectId
 # Create your views here.
 # 获取商品类型
@@ -142,16 +144,6 @@ def searchGoods(request):
     # aa = db.taobao_goods.find({"$or":[{"belong_to":good},{"belong_name":good},{"title":good},{"address":good}]})
     # print(aa)
     res_data=[]
-
-    def timestamp_from_objectid(objectid):
-        ''' ObjectId convert timestamp '''
-        result = 0
-        try:
-            result = time.mktime(objectid.generation_time.timetuple())  # get timestamp
-        except:
-            pass
-        return result
-
     for i in data:
         print(i)
         i["_id"]=timestamp_from_objectid(i["_id"])
@@ -169,22 +161,44 @@ def generateOrder(request):
     if request.method=="POST":
         sellerSelectGood=json.loads(request.body)["sellerSelectGood"]
         buyerSelectGood=json.loads(request.body)["buyerSelectGood"]
-        generateTime=datetime.now().strftime('%Y-%m-%D %H:%M:%S')
+        generateTime=datetime.datetime.now().strftime('%Y-%m-%D %H:%M:%S')
+        sellerSelectGood=json.loads(sellerSelectGood)
+        buyerSelectGood=json.loads(buyerSelectGood)
+
+        # 卖家是否确定订单 已确认1  未确认0
+        sellerSelectGood["status"]=0
+        # 保障金是否缴纳  0未交 1 已经缴纳
+        sellerSelectGood["guarantyStatus"]=0
+        print(type(sellerSelectGood["price"]))
+        # 保障金金额默认为对方商品价格的一半
+        sellerSelectGood["guaranty"]=float(buyerSelectGood["price"])/2
+        buyerSelectGood["status"]=1
+        buyerSelectGood["guarantyStatus"]=0
+        buyerSelectGood["guaranty"]=float(sellerSelectGood["price"])/2
+
         data={
             "sellerSelectGood":sellerSelectGood,
             "buyerSelectGood":buyerSelectGood,
-            "generateTime":generateTime
+            "generateTime":generateTime,
+            "id":str(uuid.uuid4())
         }
         print(data)
         res=db.order.insert(data)
-        print(res)
-        return JsonResponse({"code":"200"})
+        return JsonResponse({"insert_id":data["id"]})
     else:
         return JsonResponse({"code":"520"})
 
-
-
-# 查看商品详情
+# 支付担保金
+def paymentGuaranty(request):
+    if request.method=="POST":
+        id = json.loads(request.body)["id"]
+        print(id)
+        res=db.order.update({"id": id}, {'$set': {"buyerSelectGood.guarantyStatus": 1}})
+        print(res)
+        return JsonResponse({"code":"214"})
+    else:
+        return JsonResponse({"code":"520"})
+    # 查看商品详情
 def showGoods(request):
     pass
 

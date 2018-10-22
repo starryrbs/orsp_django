@@ -21,6 +21,8 @@ urlpatterns = [
     url(r'^searchGoods/', views.searchGoods, name="uploadgoods"),
     # 查看用户上传的商品
     url(r'^seegoodsbyid/', views.seeGoodsById, name="seeGoodsById"),
+    # 支付担保金
+    url(r'^paymentguaranty/', views.paymentGuaranty, name="paymentGuaranty"),
 
     url(r'^downloadgoods/',views.downloadGoods ,name="downloadgoods"),
     url(r'^generateorder/',views.generateOrder ,name="generateorder"),
