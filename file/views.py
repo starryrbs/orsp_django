@@ -54,8 +54,9 @@ def showfile(request):
 def showmyupfile(request):
     try:
         if request.method == 'GET':
-            qid=request.GET.get('id')
-            qid = Resource.objects.filter(upload_user_id=qid).values('id','name','download_count', 'upload_time','need_integral', 'describe')
+            qid = request.GET.get('id')
+            qid = Resource.objects.filter(upload_user_id=qid).values('id', 'name', 'download_count', 'upload_time',
+                                                                     'need_integral', 'describe')
             if qid:
                 for i in qid:
                     i['upload_time'] = str(i['upload_time'])
@@ -65,10 +66,12 @@ def showmyupfile(request):
                 return JsonResponse({"code": "518"})
     except Exception as ex:
         return JsonResponse({"code": "510"})
+
+# 删除用户自己上传的文件
 def delmyupfile(request):
     if request.method == 'POST':
-        user_id=json.loads(request.body)['qid']
-        user_index=json.loads(request.body)['qindex']
+        user_id = json.loads(request.body)['qid']
+        user_index = json.loads(request.body)['qindex']
         res = Resource.objects.filter(upload_user_id=user_id)[user_index].delete()
         if res[0]:
             return JsonResponse({"code": "213"})
@@ -76,21 +79,92 @@ def delmyupfile(request):
             return JsonResponse({"code": "510"})
     else:
         return JsonResponse({"code": "510"})
+
+
 # 评论资源功能
 def commentFile(request):
-    pass
+    def showfile(request):
+        if request.method == "GET":
+            resource_id = request.GET.get("id")
+            res = Resource.objects.filter(id=resource_id).values("name", "download_count", "upload_user", "describe")
+            res = list(res)
+            filename = res[0]["name"]
+            download_count = res[0]["download_count"]
+            user_id = res[0]["upload_user"]
+            user_name = list(Info.objects.filter(id=user_id).values("user_name"))[0]["user_name"]
+            describe = res[0]["describe"]
+            file = {
+                "filename": filename,
+                "download_count": download_count,
+                "upload_user": user_name,
+                "describe": describe
+            }
+            print(file)
+            return JsonResponse({"file": file})
 
 
 # 添加收藏
 def addCollect(request):
-    pass
+    if request.method=="GET":
+        resource_id=request.GET.get('id')  # 被收藏资源的id
+        tel=request.GET.get('telephone')  # 用户的电话号，要根据用户的电话号查到该用户的id
+        user_id=list(User.objects.filter(telephone=tel).values("id"))[0]["id"]
+        data = {
+            "user_id": user_id,
+            "resource_id": resource_id
+        }
+        print(data)
+        res=Collect.objects.filter(user_id=user_id)
+        if not res:
+            Collect.objects.create(**data) # 向Collect用户收藏表添加数据
+            return JsonResponse({"code":"209"}) # 收藏成功
+        else:
+            return HttpResponse("已收藏过了")
+    else:
+        return JsonResponse({"code":"404"})
+
 
 
 # 取消收藏
 def cancelCollect(request):
-    pass
+    if request.method == "GET":
+        tel = request.GET.get('telephone')  # 用户的电话号，要根据用户的电话号查到该用户的id
+        user_id = list(User.objects.filter(telephone=tel).values("id"))[0]["id"]  # 用户id
+        data = {
+            "user_id": user_id,
+        }
+        res = Collect.objects.filter(user_id=user_id)
+        print(data)
+        if res:
+            Collect.objects.filter(user_id=user_id).delete()  # 向Collect用户收藏表添加数据
+            return JsonResponse({"code": "222"})  # 取消收藏成功
+        else:
+            return HttpResponse("还没有收藏呢")
+    else:
+        return JsonResponse({"code": "404"})
 
 
 # 检测文件重复(根据标题)
 def detectionRepetition(request):
-    pass
+    if request.method == "GET":
+        title = request.GET.get("title")
+        res = Resource.objects.filter(title=title)
+        if res:
+            return HttpResponse("文件重复")
+        else:
+            return HttpResponse("文件不重复")
+
+# 点赞
+def like(request):
+    if request.method == "GET":
+        resource_id = request.GET.get('id')  # 资源的id
+        like_num = Resource.objects.filter(id=resource_id).values("like_num")  # 查询结果为对象集合
+        like_num = list(like_num)[0]["like_num"]  # 点赞数
+        new_like_num = like_num + 1  # 点赞数+1
+        print(resource_id, like_num, new_like_num)
+        res = Resource.objects.filter(id=resource_id).update(like_num=new_like_num)  # 更新点赞数
+        return JsonResponse({"like_num": new_like_num})  # 返回点赞数
+    else:
+        return JsonResponse({"code": "404"})
+
+#
