@@ -93,6 +93,7 @@ def showmyupfile(request):
                 return JsonResponse({"code": "518"})
     except Exception as ex:
         return JsonResponse({"code": "510"})
+
 def delmyupfile(request):
     if request.method == 'POST':
         user_id=json.loads(request.body)['qid']
