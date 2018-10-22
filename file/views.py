@@ -1,5 +1,5 @@
 from django.shortcuts import render
-from django.http import HttpResponse, JsonResponse,StreamingHttpResponse
+from django.http import HttpResponse, JsonResponse
 from orsp_django import settings
 import uuid
 from file.models import *
@@ -138,6 +138,8 @@ def delmyupfile(request):
 
 # 评论资源功能
 def commentFile(request):
+    pass
+
     def showfile(request):
         if request.method == "GET":
             resource_id = request.GET.get("id")
@@ -158,7 +160,7 @@ def commentFile(request):
             return JsonResponse({"file": file})
 
 
-# 添加收藏
+# 添加收藏 传过来用户的telephone和要收藏资源的id
 def addCollect(request):
     if request.method == "GET":
         resource_id = request.GET.get('id')  # 被收藏资源的id
@@ -177,6 +179,7 @@ def addCollect(request):
             return HttpResponse("已收藏过了")
     else:
         return JsonResponse({"code": "404"})
+
 
 
 # 取消收藏
@@ -198,7 +201,7 @@ def cancelCollect(request):
         return JsonResponse({"code": "404"})
 
 
-# 检测文件重复(根据标题)
+# 检测文件重复(根据标题) 传过来一个title
 def detectionRepetition(request):
     if request.method == "GET":
         title = request.GET.get("title")
@@ -221,5 +224,3 @@ def like(request):
         return JsonResponse({"like_num": new_like_num})  # 返回点赞数
     else:
         return JsonResponse({"code": "404"})
-
-#

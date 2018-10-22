@@ -18,6 +18,7 @@ class Info(models.Model):
     email=models.CharField(max_length=40,null=True)
     icon=models.CharField(max_length=80,null=True)
     one=models.CharField(max_length=50,null=True)
+    integral=models.IntegerField(default=1)
 class Province(models.Model):
     province_name=models.CharField(max_length=10)
 #     省市外键依赖
