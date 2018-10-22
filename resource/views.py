@@ -2,11 +2,12 @@ from resource.models import *
 from django.shortcuts import render, HttpResponse
 from django.http import JsonResponse
 import json
+import time
 from utils.mongodb_connect import *
 from utils.mongodb_connect import db
 import re
 from utils.formatDatatime import formDatatime
-
+from bson.objectid import ObjectId
 # Create your views here.
 # 获取商品类型
 def getGoodTypeTwo(request):
@@ -118,7 +119,7 @@ def seeGoodsById(request):
         else:
             return JsonResponse({"code":"519"})
     else:
-        return JsonResponse({"code":"518"})
+        return JsonResponse({"code":"520"})
 
 # 拿到mongodb里面的商品数据
 def getGoods(request):
@@ -141,9 +142,20 @@ def searchGoods(request):
     # aa = db.taobao_goods.find({"$or":[{"belong_to":good},{"belong_name":good},{"title":good},{"address":good}]})
     # print(aa)
     res_data=[]
+
+    def timestamp_from_objectid(objectid):
+        ''' ObjectId convert timestamp '''
+        result = 0
+        try:
+            result = time.mktime(objectid.generation_time.timetuple())  # get timestamp
+        except:
+            pass
+        return result
+
     for i in data:
         print(i)
-        del i["_id"]
+        i["_id"]=timestamp_from_objectid(i["_id"])
+        print(i["_id"])
         res_data.append(i)
     print(1,res_data)
     return HttpResponse(json.dumps(res_data))
@@ -154,7 +166,22 @@ def downloadGoods(request):
 
 # 生成订单
 def generateOrder(request):
-    pass
+    if request.method=="POST":
+        sellerSelectGood=json.loads(request.body)["sellerSelectGood"]
+        buyerSelectGood=json.loads(request.body)["buyerSelectGood"]
+        generateTime=datetime.now().strftime('%Y-%m-%D %H:%M:%S')
+        data={
+            "sellerSelectGood":sellerSelectGood,
+            "buyerSelectGood":buyerSelectGood,
+            "generateTime":generateTime
+        }
+        print(data)
+        res=db.order.insert(data)
+        print(res)
+        return JsonResponse({"code":"200"})
+    else:
+        return JsonResponse({"code":"520"})
+
 
 
 # 查看商品详情
