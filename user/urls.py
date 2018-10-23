@@ -43,5 +43,4 @@ urlpatterns = [
     # 花钱购买积分
     url(r'buyintegral/',views.buyIntegral,name='buyintegral'),
     url(r'insertdata/',views.insertData,name='insertData'),
-
 ]
