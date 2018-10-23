@@ -22,9 +22,11 @@ class Products(models.Model):
     name = models.CharField(max_length=15)
     price = models.FloatField(default=0.00)
     category = models.IntegerField(default=0)
+    # 标题
+    title=models.CharField(max_length=50,null=True)
     # 销量
     pnum = models.IntegerField(default=0)
-    imgurl = models.CharField(max_length=60)
+    imgurl = models.CharField(max_length=256)
     description = models.CharField(max_length=100)
     # 上传者
     user = models.ForeignKey(to=Info, to_field='id', on_delete=models.CASCADE, default=1)
