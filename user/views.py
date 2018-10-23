@@ -62,7 +62,7 @@ def judgeToken(request):
     if request.method=="POST":
         # try:
             token = request.META.get("HTTP_TOKEN")
-            print("token", token)
+            print("进入judgeToken方法，token", token)
             # 拿token中的数据
             SECRECT_KEY = "orsp"
             data = jwt.decode(str(token).encode(), SECRECT_KEY, audience='webkit', algorithms=['HS256'])
@@ -72,6 +72,7 @@ def judgeToken(request):
             print(res[0]["id"])
             res_data=list(Info.objects.filter(id=res[0]["id"]).values())
             print(res_data)
+            print("end judgeToken")
             if res_data:
                 return JsonResponse({"id": res_data[0]["id"],"user_name":res_data[0]["user_name"]})
             else:
@@ -212,40 +213,47 @@ def acquireGuaranty(request):
 def uploadFile(request):
     pass
 
-
 # 用户下载文件
 def downloadFile(request):
     pass
-
 
 # 用户查看积分,头像,名称,等基本信息
 def showUser(request):
     try:
         if request.method == 'GET':
-            qtelephone = request.GET.get('telephone')
-            qid = User.objects.filter(telephone=qtelephone).values('id')
+            print("进入showUser方法：---》》")
+            token = request.META.get("HTTP_TOKEN")
+            SECRECT_KEY = "orsp"
+            data = jwt.decode(str(token).encode(), SECRECT_KEY, audience='webkit', algorithms=['HS256'])
+            print(data["some"]["telephone"])
+            telephone = data["some"]["telephone"]
+            qid = User.objects.filter(telephone=telephone).values('id')
             qid = qid[0]['id']
-            qid = Info.objects.filter(id=qid).values('user_name', 'level', 'icon')
+            print(qid)
+            data = Info.objects.filter(id=qid).values('user_name', 'level', 'icon','sex')[0]
+            data1=data # 这里必须声明一个新数组，不然是无法改变sex里面的值
+            data1["telephone"]=telephone
+            if not data["sex"]:
+                data1["sex"]="男"
+            else:
+                data1["sex"]="女"
+            print(1111,data1)
             if qid:
-                return HttpResponse(json.dumps(list(qid), ensure_ascii=False))
+                return HttpResponse(json.dumps(data1, ensure_ascii=False))
             else:
                 return JsonResponse({"code": "515"})
     except Exception as ex:
         return JsonResponse({"code": "510"})
 
-
 # 给管理员留言功能
 def leaveWord(request):
     pass
-
 
 # 花钱购买积分
 def buyIntegral(request):
     pass
 
-
 # 这里是用来插入数据的
-
 
 def insertData(request):
     import json
