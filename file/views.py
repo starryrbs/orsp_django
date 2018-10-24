@@ -6,7 +6,7 @@ from file.models import *
 from user.models import *
 import json
 from django.http import FileResponse
-
+from utils.formatDatatime import *
 
 # Create your views here.
 def uploadFile(request):
@@ -33,6 +33,12 @@ def saveFile(request):
     print(json.loads(request.body))
     data = json.loads(request.body)
     print("data", data)
+    resourceTypeId_id=list(ResourceType.objects.filter(name=data["resourceType"]).values())[0]["id"]
+    data["resourceTypeId_id"]=resourceTypeId_id
+    del data["resourceType"]
+    data["share_num"]=0
+    data["like_num"]=0
+    print(data)
     res = Resource.objects.create(**data)
     return HttpResponse("ok")
 
@@ -50,19 +56,20 @@ def checkdownloadfile(request):
     else:
         return JsonResponse({"code": "510"})
 
-
 # 下载文件
 def downloadfile(request):
     if request.method == "POST":
         filename = json.loads(request.body)
         if filename['fname']:
-            filepath = ('orsp_django/static/{0}'.format(filename['fname']))
+            # media / pic
+            filepath = ('media/pic/{0}'.format(filename['fname']))
             response = FileResponse(readFile(filepath))
             response['Content-Type'] = 'application/octet-stream'
             response['Content-Disposition'] = 'attachment;filename="{0}"'.format(filename['fname'])
             return response
     else:
         return JsonResponse({"code": "510"})
+
 
 def readFile(filename, chunk_size=512):
     """
@@ -223,3 +230,18 @@ def like(request):
         return JsonResponse({"like_num": new_like_num})  # 返回点赞数
     else:
         return JsonResponse({"code": "404"})
+
+
+# 查看所有用户上传的文件
+def showAllFile(request):
+    res=list(Resource.objects.all().values())
+    print(res)
+    res=formDatatime(res)
+    print(res)
+    for i in range(len(res)):
+        print(i)
+        print(res[i])
+        print(res[i]["upload_user_id"])
+        res[i]["upload_user"]=list(Info.objects.filter(id=res[i]["upload_user_id"]).values())[0]["user_name"]
+    print(res)
+    return HttpResponse(json.dumps(res))
