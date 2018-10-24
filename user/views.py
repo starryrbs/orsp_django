@@ -230,7 +230,7 @@ def showUser(request):
             qid = User.objects.filter(telephone=telephone).values('id')
             qid = qid[0]['id']
             print(qid)
-            data = Info.objects.filter(id=qid).values('user_name', 'level', 'icon','sex')[0]
+            data = Info.objects.filter(id=qid).values('user_name', 'level', 'email', 'icon', 'sex')[0]
             data1=data # 这里必须声明一个新数组，不然是无法改变sex里面的值
             data1["telephone"]=telephone
             if not data["sex"]:
@@ -239,7 +239,7 @@ def showUser(request):
                 data1["sex"]="女"
             print(1111,data1)
             if qid:
-                return HttpResponse(json.dumps(data1, ensure_ascii=False))
+                return JsonResponse(data1)
             else:
                 return JsonResponse({"code": "515"})
     except Exception as ex:
