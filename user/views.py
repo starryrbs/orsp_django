@@ -24,7 +24,7 @@ def login(request):
             print(res_psd)
             if res_psd:
                 res_token = jwtEncoding({"telephone": telephone, "password": password})
-                print("token",res_token)
+                print("token", res_token)
                 # 生成token
                 response = JsonResponse({"code": "206"})
                 response["token"] = res_token
@@ -57,29 +57,30 @@ def isExist(request):
         # 请求失败
         return JsonResponse({"code": "510"})
 
+
 # 判断token是否正确
 def judgeToken(request):
-    if request.method=="POST":
+    if request.method == "POST":
         # try:
-            token = request.META.get("HTTP_TOKEN")
-            print("进入judgeToken方法，token", token)
-            # 拿token中的数据
-            SECRECT_KEY = "orsp"
-            data = jwt.decode(str(token).encode(), SECRECT_KEY, audience='webkit', algorithms=['HS256'])
-            print(data['some']["telephone"])
-            telephone = data['some']["telephone"]
-            res = list(User.objects.filter(telephone=telephone).values())
-            print(res[0]["id"])
-            res_data=list(Info.objects.filter(id=res[0]["id"]).values())
-            print(res_data)
-            print("end judgeToken")
-            if res_data:
-                return JsonResponse({"id": res_data[0]["id"],"user_name":res_data[0]["user_name"]})
-            else:
-                return JsonResponse({"code": "517"})
-        # except Exception as ex:
-        #     print(ex)
-        #     return JsonResponse({"code": "517"})
+        token = request.META.get("HTTP_TOKEN")
+        print("进入judgeToken方法，token", token)
+        # 拿token中的数据
+        SECRECT_KEY = "orsp"
+        data = jwt.decode(str(token).encode(), SECRECT_KEY, audience='webkit', algorithms=['HS256'])
+        print(data['some']["telephone"])
+        telephone = data['some']["telephone"]
+        res = list(User.objects.filter(telephone=telephone).values())
+        print(res[0]["id"])
+        res_data = list(Info.objects.filter(id=res[0]["id"]).values())
+        print(res_data)
+        print("end judgeToken")
+        if res_data:
+            return JsonResponse({"id": res_data[0]["id"], "user_name": res_data[0]["user_name"]})
+        else:
+            return JsonResponse({"code": "517"})
+    # except Exception as ex:
+    #     print(ex)
+    #     return JsonResponse({"code": "517"})
     else:
         return JsonResponse({"code": "517"})
 
@@ -156,6 +157,7 @@ def changePsd(request):
         # 请求失败
         return JsonResponse({"code": "510"})
 
+
 # 上传头像 是一个 图片名字
 def uploadIcon(request):
     if request.method == 'POST':
@@ -177,45 +179,61 @@ def uploadIcon(request):
     else:
         return JsonResponse({"code": "510"})
 
-
+def changeaddress(request):
+    if request.method == 'POST':
+        getdata = json.loads(request.body)
+        print(getdata)
+        print('sssssssssssssssss',getdata['index'],getdata['userid'],getdata['id'])
+        index=getdata['index']
+        # Address.objects.filter(user_id=getdata['id']).update(default='0')
+        Address.objects.filter(user_id=getdata['userid']).update(default='0')
+        Address.objects.filter(id=getdata['id']).update(default='1')
+    else:
+        return JsonResponse({"code": "510"})
 # 根据用户id查询用户地址
 def getAddresById(request):
-    if request.method == 'POST':
-        id=json.loads(request.body)["id"]
+    if request.method=="POST":
+        id = json.loads(request.body)
+        id = id['id']
         # 去查询手机号
-        res=list(Address.objects.filter(user_id=id).values())
-        print("查询地址结果",res)
+        print('ssssssss',id)
+        res = list(Address.objects.filter(user_id=id).values())
+        print("查询地址结果", res)
         for r in res:
             print(City.objects.filter(id=r["city_id"]).values('city_name'))
-            r["provice_id"]=list(Province.objects.filter(id=r["provice_id"]).values('province_name'))[0]["province_name"]
-            r["city_id"]=list(City.objects.filter(id=r["city_id"]).values('city_name'))[0]["city_name"]
+            r["provice_id"] = list(Province.objects.filter(id=r["provice_id"]).values('province_name'))[0][
+                "province_name"]
+            r["city_id"] = list(City.objects.filter(id=r["city_id"]).values('city_name'))[0]["city_name"]
         print(res)
         return HttpResponse(json.dumps(res))
     else:
         return JsonResponse({"code": "510"})
-
-
 # 确认支付担保金
-def generateGuaranty(request,money):
+def generateGuaranty(request, money):
     print(money)
-    context={}
-    context["money"]=money
-    return render(request,'index.html',context=context)
+    context = {}
+    context["money"] = money
+    return render(request, 'index.html', context=context)
+
 
 def acquireGuaranty(request):
-    if request.method=="POST":
-        money=json.loads(request.body)["money"]
+    if request.method == "POST":
+        money = json.loads(request.body)["money"]
         print(money)
         return HttpResponse('<a>ok</a>')
     else:
         return JsonResponse({"code": "510"})
+
+
 # 用户上传文件
 def uploadFile(request):
     pass
 
+
 # 用户下载文件
 def downloadFile(request):
     pass
+
 
 # 用户查看积分,头像,名称,等基本信息
 def showUser(request):
@@ -234,10 +252,10 @@ def showUser(request):
             data1=data # 这里必须声明一个新数组，不然是无法改变sex里面的值
             data1["telephone"]=telephone
             if not data["sex"]:
-                data1["sex"]="男"
+                data1["sex"] = "男"
             else:
-                data1["sex"]="女"
-            print(1111,data1)
+                data1["sex"] = "女"
+            print(1111, data1)
             if qid:
                 return JsonResponse(data1)
             else:
@@ -245,13 +263,16 @@ def showUser(request):
     except Exception as ex:
         return JsonResponse({"code": "510"})
 
+
 # 给管理员留言功能
 def leaveWord(request):
     pass
 
+
 # 花钱购买积分
 def buyIntegral(request):
     pass
+
 
 # 这里是用来插入数据的
 
@@ -273,6 +294,7 @@ def insertData(request):
                 c = City.objects.create(**t)
                 print(2, c)
     return HttpResponse("成功")
+
 
 '''
 token {'ALLUSERSPROFILE': 'C:\\ProgramData', 'ANDROID_SDK_HOME': 'D:\\android-sdk-windows', 'APPDATA': 'C:\\Users\\raobaoshi\\AppData\\Roaming', 'ASL.LOG': 'Destination=file', 'AWE_DIR': 'C:\\Program Files (x86)\\Khrona LLC\\Awesomium SDK\\1.6.6\\', 'CLASSPATH': '.;C:\\Program Files\\Java\\jdk1.8.0_111\\lib\\dt\\.jar;C:\\Program Files\\Java\\jdk1.8.0_111\\lib\\tools.jar;;C:\\Program Files\\Java\\jdk1.8.0_111\\lib', 'COMMONPROGRAMFILES': 'C:\\Program Files\\Common Files', 'COMMONPROGRAMFILES(X86)': 'C:\\Program Files (x86)\\Common Files', 'COMMONPROGRAMW6432': 'C:\\Program Files\\Common Files', 'COMPUTERNAME': 'ASUS', 'COMSPEC': 'C:\\Windows\\system32\\cmd.exe', 'DRIVERDATA': 'C:\\Windows\\System32\\Drivers\\DriverData', 'FP_NO_HOST_CHECK': 'NO', 'GTK_BASEPATH': 'C:\\Program Files (x86)\\GtkSharp\\2.12\\', 'HOMEDRIVE': 'C:', 'HOMEPATH': '\\Users\\raobaoshi', 'JAVA_HOME': 'C:\\Program Files\\Java\\jdk1.8.0_111', 'LOCALAPPDATA': 'C:\\Users\\raobaoshi\\AppData\\Local', 'LOGONSERVER': '\\\\ASUS', 'M2_HOME': 'D:\\apache-maven-3.3.9', 'MAVEN_HOME': 'D:\\apache-maven-3.3.9', 'MOZ_PLUGIN_PATH': 'D:\\soft\\Foxit Reader\\plugins\\', 'NUMBER_OF_PROCESSORS': '4', 'ONEDRIVE': 'C:\\Users\\raobaoshi\\OneDrive', 'OS': 'Windows_NT', 'PATH': 'D:\\oracle\\app\\oracle\\product\\10.2.0\\server\\bin;C:\\Program Files\\Java\\jdk1.8.0_111\\bin;C:\\Windows\\system32;C:\\Windows;C:\\Windows\\system32\\wbem;C:\\Program Files (x86)\\GtkSharp\\2.12\\bin;D:\\android-sdk-windows\\platform-tools;D:\\android-sdk-windows\\tools;C:\\Program Files\\MySQL\\MySQL Server 5.7\\bin;C:\\Windows\\System32\\Wbem;C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\;";D:\\AutoTestPlatform\\php";C:\\Program Files\\Microsoft SQL Server\\130\\Tools\\Binn\\;C:\\Program Files\\dotnet\\;D:\\AutoTestPlatform\\mysql\\bin;D:\\oracle\\app\\oracle\\product\\10.2.0\\server\\BIN;D:\\apache-maven-3.3.9\\bin;C:\\Users\\raobaoshi\\AppData\\Local\\Programs\\Python\\Python36\\Scripts;C:\\Users\\raobaoshi\\PycharmProjects\\learn\\venv\\Scripts\\scrapy.exe;D:\\MongoDB\\bin;D:\\Django project\\venv\\Scripts;C:\\Windows\\System32\\OpenSSH\\;D:\\xampp\\mysql\\bin;C:\\Program Files (x86)\\Google\\Chrome\\Application;D:\\soft\\Git\\cmd;C:\\Users\\raobaoshi\\AppData\\Local\\Programs\\Python\\Python36\\;D:\\soft\\nodejs\\;C:\\Program Files (x86)\\Microsoft VS Code\\bin;C:\\Users\\raobaoshi\\AppData\\Local\\Microsoft\\WindowsApps;C:\\Users\\raobaoshi\\AppData\\Local\\Programs\\Fiddler;C:\\Users\\raobaoshi\\AppData\\Local\\Programs\\Python\\Python36\\Scripts;D:\\Django project\\venv\\Scripts;;C:\\Users\\raobaoshi\\AppData\\Local\\Microsoft\\WindowsApps;C:\\Users\\raobaoshi\\AppData\\Roaming\\npm', 'PATHEXT': '.COM;.EXE;.BAT;.CMD;.VBS;.VBE;.JS;.JSE;.WSF;.WSH;.MSC.PY;.PYM;.MSC', 'PROCESSOR_ARCHITECTURE': 'AMD64', 'PROCESSOR_IDENTIFIER': 'Intel64 Family 6 Model 60 Stepping 3, GenuineIntel', 'PROCESSOR_LEVEL': '6', 'PROCESSOR_REVISION': '3c03', 'PROGRAMDATA': 'C:\\ProgramData', 'PROGRAMFILES': 'C:\\Program Files', 'PROGRAMFILES(X86)': 'C:\\Program Files (x86)', 'PROGRAMW6432': 'C:\\Program Files', 'PSMODULEPATH': 'C:\\Windows\\system32\\WindowsPowerShell\\v1.0\\Modules\\', 'PT5HOME': 'D:\\soft\\Cisco Packet Tracer 6.0', 'PT6HOME': 'D:\\soft\\Cisco Packet Tracer 6.0', 'PTYHONPATH': 'D:\\machine learning\\machine learning\\k-近邻算法', 'PUBLIC': 'C:\\Users\\Public', 'PYCHARM_HOSTED': '1', 'PYCHARM_MATPLOTLIB_PORT': '54989', 'PYTHONIOENCODING': 'UTF-8', 'PYTHONPATH': 'D:\\soft\\PyCharm 2018.1.4\\helpers\\pycharm_matplotlib_backend;D:\\orsp\\orsp_django', 'PYTHONUNBUFFERED': '1', 'QT_QPA_PLATFORM_PLUGIN_PATH': 'C:\\Users\\raobaoshi\\AppData\\Local\\Programs\\Python\\Python36\\Lib\\site-packages\\PyQt5\\Qt\\plugins', 'SESSIONNAME': 'Console', 'SYSTEMDRIVE': 'C:', 'SYSTEMROOT': 'C:\\Windows', 'TEMP': 'C:\\Users\\RAOBAO~1\\AppData\\Local\\Temp', 'TMP': 'C:\\Users\\RAOBAO~1\\AppData\\Local\\Temp', 'USERDOMAIN': 'asus', 'USERDOMAIN_ROAMINGPROFILE': 'asus', 'USERNAME': 'raobaoshi', 'USERPROFILE': 'C:\\Users\\raobaoshi', 'WINDIR': 'C:\\Windows', 'DJANGO_SETTINGS_MODULE': 'orsp_django.settings', 'RUN_MAIN': 'true', 'SERVER_NAME': 'asus', 'GATEWAY_INTERFACE': 'CGI/1.1', 'SERVER_PORT': '8000', 'REMOTE_HOST': '', 'CONTENT_LENGTH': '249', 'SCRIPT_NAME': '', 'SERVER_PROTOCOL': 'HTTP/1.1', 'SERVER_SOFTWARE': 'WSGIServer/0.2', 'REQUEST_METHOD': 'POST', 'PATH_INFO': '/user/judgetoken/', 'QUERY_STRING': '', 'REMOTE_ADDR': '127.0.0.1', 'CONTENT_TYPE': 'application/json;charset=UTF-8', 'HTTP_HOST': '127.0.0.1:8000', 'HTTP_CONNECTION': 'keep-alive', 'HTTP_ACCEPT': 'application/json, text/plain, */*', 'HTTP_ORIGIN': 'http://localhost:8080', 'HTTP_USER_AGENT': 'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/69.0.3497.100 Safari/537.36', 'HTTP_REFERER': 'http://localhost:8080/', 'HTTP_ACCEPT_ENCODING': 'gzip, deflate, br', 'HTTP_ACCEPT_LANGUAGE': 'zh-CN,zh;q=0.9', 'wsgi.input': <_io.BufferedReader name=1064>, 'wsgi.errors': <_io.TextIOWrapper name='<stderr>' mode='w' encoding='UTF-8'>, 'wsgi.version': (1, 0), 'wsgi.run_once': False, 'wsgi.url_scheme': 'http', 'wsgi.multithread': True, 'wsgi.multiprocess': False, 'wsgi.file_wrapper': <class 'wsgiref.util.FileWrapper'>}

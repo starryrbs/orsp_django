@@ -25,24 +25,26 @@ urlpatterns = [
     # 保存文件的信息
     url(r'^savefile/',views.saveFile,name="uploadfile"),
     # # 下载文件
-    url(r'^downloadfile',views.downloadfile,name="downloadfile"),
-    url(r'^checkdownloadfile',views.checkdownloadfile,name="checkdownloadfile"),
+    url(r'^downloadfile/',views.downloadfile,name="downloadfile"),
+    url(r'^checkdownloadfile/',views.checkdownloadfile,name="checkdownloadfile"),
     # # 取消上传的文件
-    url(r'^cancelfile',views.cancelfile,name="cancelfile"),
+    url(r'^cancelfile/',views.cancelfile,name="cancelfile"),
     # # 查看文件信息(包括文件名,被下载次数,上传人,评论信息)
-    url(r'^showfile',views.showfile,name="showfile"),
+    url(r'^showfile/',views.showfile,name="showfile"),
     # 查看 上传文件
     url(r'^showmyupfile',views.showmyupfile,name="showmyupfile"),
     # 评论资源功能
-    url(r'^commentfile',views.commentFile,name="commentfile"),
+    url(r'^commentfile/',views.commentFile,name="commentfile"),
     # 添加收藏
-    url(r'^addcollect',views.addCollect,name="addcollect"),
+    url(r'^addcollect/',views.addCollect,name="addcollect"),
     # 取消收藏
-    url(r'^cancelcollect',views.cancelCollect,name="cancelcollect"),
+    url(r'^cancelcollect/',views.cancelCollect,name="cancelcollect"),
     # 检测文件重复(根据标题)
-    url(r'^detectionrepetition',views.detectionRepetition,name="detectionrepetition"),
+    url(r'^detectionrepetition/',views.detectionRepetition,name="detectionrepetition"),
     # 删除上传文件
-    url(r'^delmyupfile',views.delmyupfile,name="delmyupfile"),
+    url(r'^delmyupfile/',views.delmyupfile,name="delmyupfile"),
+#     查看所有用户上传的文件
+    url(r'^showallfile/', views.showAllFile, name="showallfile"),
 ]
 '''
 

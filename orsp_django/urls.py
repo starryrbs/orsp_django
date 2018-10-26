@@ -17,10 +17,13 @@ from django.contrib import admin
 from django.urls import path
 from django.conf.urls import url
 from django.conf.urls import include
+from django.views.static import serve
+from . import settings
 urlpatterns = [
     path('admin/', admin.site.urls),
 # url(r'^polls/', include('polls.urls')),namespace='obapp.user'
     url(r'^file/',include('file.urls',namespace='orsp.file')),
     url(r'^user/',include('user.urls',namespace='orsp.user')),
     url(r'^resource/',include('resource.urls',namespace='orsp.resource')),
+    url(r'^media/(?P<path>.*)$', serve, {'document_root':settings.MEDIA_ROOT})
 ]
