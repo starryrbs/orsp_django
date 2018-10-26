@@ -116,8 +116,7 @@ def showmyupfile(request):
     try:
         if request.method == 'GET':
             qid = request.GET.get('id')
-            qid = Resource.objects.filter(upload_user_id=qid).values('id', 'name', 'download_count', 'upload_time',
-                                                                     'need_integral', 'describe')
+            qid = Resource.objects.filter(upload_user_id=qid).values('id', 'name', 'download_count', 'upload_time','need_integral', 'describe')
             if qid:
                 for i in qid:
                     i['upload_time'] = str(i['upload_time'])
