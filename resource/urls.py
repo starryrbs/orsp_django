@@ -25,12 +25,19 @@ urlpatterns = [
     url(r'^paymentguaranty/', views.paymentGuaranty, name="paymentGuaranty"),
     # 查看我的订单
     url(r'^seemyorder/', views.seeMyOrder, name="seemyorder"),
+    # 查看交换请求
+    url(r'^seechange/', views.seeChange, name="seechange"),
+    # 卖家同意或者拒绝对方订单
+    url(r'^selleragree/', views.sellerAgree, name="selleragree"),
 
     url(r'^downloadgoods/',views.downloadGoods ,name="downloadgoods"),
+    # 生成订单
     url(r'^generateorder/',views.generateOrder ,name="generateorder"),
     url(r'^showgoods/',views.showGoods ,name="showgoods"),
     url(r'^commentgoods/',views.commentGoods ,name="commentgoods"),
     url(r'insertdata/', views.insertData, name='insertData'),
+    # 获取国美数据
+    url(r'getguomei/', views.getGuoMei, name='getguomei'),
 ]
 
 '''
