@@ -41,7 +41,13 @@ urlpatterns = [
     # 给管理员留言功能
     url(r'leaveword/',views.leaveWord,name='leaveword'),
     # 花钱购买积分
+
     url(r'buyintegral/',views.buyIntegral,name='buyintegral'),
+    # 获得省市二级联动
+    url(r'getcityprovince/', views.getCityProvince, name='getcityprovince'),
+    # 添加用户地址
+    url(r'addaddress/', views.addAddress, name='addaddress'),
+
     url(r'insertdata/',views.insertData,name='insertData'),
     url(r'changeaddress/',views.changeaddress,name='changeaddress'),
 ]

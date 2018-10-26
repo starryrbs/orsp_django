@@ -15,6 +15,9 @@ urlpatterns = [
     # 添加收藏
     url(r'^addcollect/',views.addCollect ,name="addcollect"),
     url(r'^cancelcollect/',views.cancelCollect ,name="cancelcollect"),
+    # 查看我的收藏
+    url(r'^seemycollect/', views.seeMyCollect, name="seemycollect"),
+
     # 上传商品
     url(r'^uploadgoods/',views.uploadGoods ,name="uploadgoods"),
     # 上传商品

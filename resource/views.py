@@ -81,7 +81,24 @@ def addCollect(request):
 def cancelCollect(request):
     pass
 
-
+#查看我的收藏
+def seeMyCollect(request):
+    if request.method=="POST":
+        user_id=json.loads(request.body)["user_id"]
+        res=list(User_collect.objects.filter(user_id=user_id).values())
+        # 返回的数据
+        data=[]
+        for i in res:
+            print()
+            res_id=i["collect_resource_id"]
+            good=list(Products.objects.filter(id=res_id).values())[0]
+            data.append(good)
+        print(data)
+        data=formDatatime(data)
+        return HttpResponse(json.dumps(data))
+    else:
+        # 请求失败
+        return JsonResponse({"code": "510"})
 # 上传商品
 # 上传商品要指定一个三级商品类型,价格,图片的url,描述,用户id,上传时间是当前时间,名字
 def uploadGoods(request):
