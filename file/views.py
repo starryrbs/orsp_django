@@ -122,7 +122,6 @@ def showmyupfile(request):
                     i['upload_time'] = str(i['upload_time'])
                 return HttpResponse(json.dumps(list(qid), ensure_ascii=False))
             else:
-
                 return JsonResponse({"code": "518"})
     except Exception as ex:
         return JsonResponse({"code": "510"})
