@@ -17,10 +17,9 @@ urlpatterns = [
     url(r'^cancelcollect/',views.cancelCollect ,name="cancelcollect"),
     # 查看我的收藏
     url(r'^seemycollect/', views.seeMyCollect, name="seemycollect"),
-
     # 上传商品
     url(r'^uploadgoods/',views.uploadGoods ,name="uploadgoods"),
-    # 上传商品
+    # 搜索商品
     url(r'^searchGoods/', views.searchGoods, name="uploadgoods"),
     # 查看用户上传的商品
     url(r'^seegoodsbyid/', views.seeGoodsById, name="seeGoodsById"),
@@ -32,6 +31,8 @@ urlpatterns = [
     url(r'^seechange/', views.seeChange, name="seechange"),
     # 卖家同意或者拒绝对方订单
     url(r'^selleragree/', views.sellerAgree, name="selleragree"),
+    # 买家查询卖家已经同意的订单
+    url(r'^showbuy/', views.showBuy, name="showbuy"),
 
     url(r'^downloadgoods/',views.downloadGoods ,name="downloadgoods"),
     # 生成订单

@@ -14,6 +14,11 @@ def object_id_from_datetime(from_datetime=None):
     if not from_datetime:
         from_datetime = datetime.datetime.now()
     return ObjectId.from_datetime(generation_time=from_datetime)
-# print(object_id_from_datetime(from_datetime=1538609282))
 
+def general_obj_from_time(from_datetime=None, time_delta=None):
+    if from_datetime is None or not isinstance(from_datetime, datetime.datetime):
+        from_datetime = datetime.datetime.now()  # 时间元组
+    if time_delta:  # time_delta 是datetime.timedelta 类型,可以进行时间的加减运算
+        from_datetime = from_datetime + time_delta
 
+    return ObjectId.from_datetime(from_datetime)
