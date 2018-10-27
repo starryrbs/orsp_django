@@ -11,6 +11,8 @@ from utils.formatDatatime import formDatatime,timestamp_from_objectid
 from utils.objectId_time import general_obj_from_time
 from bson.objectid import ObjectId
 from django.db.models import Q
+import bson
+
 # Create your views here.
 # 获取商品类型
 def getGoodTypeTwo(request):
@@ -81,7 +83,24 @@ def addCollect(request):
 def cancelCollect(request):
     pass
 
-
+#查看我的收藏
+def seeMyCollect(request):
+    if request.method=="POST":
+        user_id=json.loads(request.body)["user_id"]
+        res=list(User_collect.objects.filter(user_id=user_id).values())
+        # 返回的数据
+        data=[]
+        for i in res:
+            print()
+            res_id=i["collect_resource_id"]
+            good=list(Products.objects.filter(id=res_id).values())[0]
+            data.append(good)
+        print(data)
+        data=formDatatime(data)
+        return HttpResponse(json.dumps(data))
+    else:
+        # 请求失败
+        return JsonResponse({"code": "510"})
 # 上传商品
 # 上传商品要指定一个三级商品类型,价格,图片的url,描述,用户id,上传时间是当前时间,名字
 def uploadGoods(request):
@@ -181,7 +200,7 @@ def searchGoods(request):
     data = db.taobao_goods.find({"$or":[{"belong_to":good},{"belong_name":good},{"title":{"$regex":good}},{"address":good}]}).limit(500).skip(index)
     # aa = db.taobao_goods.find({"$or":[{"belong_to":good},{"belong_name":good},{"title":good},{"address":good}]})
     # print(aa)
-    res=list(Products.objects.filter(Q(name=good) | Q(description=good)| Q(title=good)).values())
+    res=list(Products.objects.filter(Q(name__icontains=good) | Q(description__icontains=good)| Q(title__icontains=good)).values())
     for i in res:
         i["Stock"]=i["category"]
         i["payNum"]=i["pnum"]
@@ -194,6 +213,7 @@ def searchGoods(request):
         i["address"]="江苏苏州"
         i["change"]="打印机"
         i["user"]=i["user_id"]
+        i["_id"]=i["id"]
     print("----------------")
     print(res)
 
@@ -203,7 +223,7 @@ def searchGoods(request):
     res_data=[]
     for i in data:
         print(i)
-        i["_id"]=timestamp_from_objectid(i["_id"])
+        i["_id"]=bson.objectid.ObjectId(i["_id"]).__str__()
         print(i["_id"])
         res_data.append(i)
     print(1,res_data)
@@ -287,10 +307,11 @@ def commentGoods(request):
 #
 def seeChange(request):
     user_id=json.loads(request.body)["user_id"]
-    res=list(db.order.find({"sellerSelectGood.user":str(user_id),"sellerSelectGood.status":0}))
+    res=list(db.order.find({"sellerSelectGood.user":str(user_id)}))
     print(res)
     for i in res:
-        del i["_id"]
+        i["_id"]=timestamp_from_objectid(i["_id"])
+    print(1111111111,res)
     return HttpResponse(json.dumps(res))
 
 # 卖家同意交换请求
@@ -298,15 +319,32 @@ def sellerAgree(request):
     if request.method=="POST":
         user_id=json.loads(request.body)["user_id"]
         operation=json.loads(request.body)["operation"]
+        _id=json.loads(request.body)["_id"]
+        print(_id)
     #     operation为1代表同意请求，操作码为-1代表拒绝
-        db.order.update({"sellerSelectGood.user":str(user_id)},{'$set':{"sellerSelectGood.status":int(operation)}})
+        res=db.order.update({"sellerSelectGood.user":str(user_id),"sellerSelectGood._id":_id},{'$set':{"sellerSelectGood.status":int(operation)}})
+        print(res)
         return JsonResponse({"code":"298"})
     else:
         # 请求失败
         return JsonResponse({"code": "510"})
 from pymongo import MongoClient
 
+# 查询买家已经买到的订单，就是卖家已经同意
+def showBuy(request):
+    if request.method=="POST":
+        user_id=json.loads(request.body)["user_id"]
+        print(user_id)
+    #     operation为1代表同意请求，操作码为-1代表拒绝
+        res=list(db.order.find({"buyerSelectGood.user_id":user_id,"sellerSelectGood.status":1}))
+        print(res)
+        for i in res:
+            del i["_id"]
 
+        return HttpResponse(json.dumps(res))
+    else:
+        # 请求失败
+        return JsonResponse({"code": "510"})
 # 这里是用来插入数据的
 def insertData(request):
     import json
