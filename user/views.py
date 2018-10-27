@@ -5,6 +5,7 @@ import json
 import re
 from werkzeug.security import generate_password_hash, check_password_hash
 from utils.token_get import *
+from orsp_django import settings
 
 
 # Create your views here.
@@ -136,21 +137,26 @@ def register(request):
 
 # 修改密码
 def changePsd(request):
+    print(11)
     if request.method == "POST":
-        pnews = json.loads(request.body)
-        res = list(User.objects.filter(telephone=pnews['telephone']).values())
-        res_psd = check_password_hash(res[0]["password"], pnews['password'])
+        req = json.loads(request.body)
+        password = User.objects.filter(telephone=req['telephone']).values("password")[0]["password"]
+        res_psd = check_password_hash(password, req['current_password'])
         if res_psd:
-            if pnews['password1'] == pnews['password2']:
-                a = User.objects.get(telephone=pnews['telephone'])
-                a.password = generate_password_hash(pnews['password2'], method='pbkdf2:sha1:2000', salt_length=8)
+            if req['new_password'] == req['new_password_verify']:
+                a = User.objects.get(telephone=req['telephone'])
+                print(a)
+                a.password = generate_password_hash(req['new_password'], method='pbkdf2:sha1:2000', salt_length=8)
                 a.save()
                 # 修改成功
+                print(1)
                 return JsonResponse({"code": "211"})
             else:
+                print(33)
                 # 两次密码不一致
                 return JsonResponse({"code": "516"})
         else:
+            print(22)
             # 用户密码错误
             return JsonResponse({"code": "514"})
     else:
@@ -158,8 +164,8 @@ def changePsd(request):
         return JsonResponse({"code": "510"})
 
 
-# 上传头像 是一个 图片名字
-def uploadIcon(request):
+# 渲染头像 是一个 图片名字
+def getUsericon(request):
     if request.method == 'POST':
         try:
             getlist = json.loads(request.body)
@@ -243,18 +249,18 @@ def showUser(request):
             token = request.META.get("HTTP_TOKEN")
             SECRECT_KEY = "orsp"
             data = jwt.decode(str(token).encode(), SECRECT_KEY, audience='webkit', algorithms=['HS256'])
-            print(data["some"]["telephone"])
             telephone = data["some"]["telephone"]
             qid = User.objects.filter(telephone=telephone).values('id')
             qid = qid[0]['id']
-            print(qid)
-            data = Info.objects.filter(id=qid).values('user_name', 'level', 'email', 'icon', 'sex')[0]
+            data = Info.objects.filter(id=qid).values('user_name', 'level', 'email', 'icon', 'sex','integral','one')[0]
             data1=data # 这里必须声明一个新数组，不然是无法改变sex里面的值
             data1["telephone"]=telephone
             if not data["sex"]:
                 data1["sex"] = "男"
             else:
                 data1["sex"] = "女"
+            if not data["email"]:
+                data1["email"]="尚未绑定邮箱"
             print(1111, data1)
             if qid:
                 return JsonResponse(data1)
@@ -273,6 +279,88 @@ def leaveWord(request):
 def buyIntegral(request):
     pass
 
+# 修改个人信息
+def changeMsg(request):
+    print("进入了changeMsg方法")
+    try:
+        if request.method=="POST":
+            data=json.loads(request.body)
+            print(data)
+            user_name=data["name"]
+            telephone=data["telephone"]
+            print(telephone)
+            user_id=User.objects.filter(telephone=telephone).values("id")[0]['id']
+            print(user_id)
+            email=data["email"]
+            if email=="尚未绑定邮箱":
+                email=None
+            level=data["level"]
+            icon=data["icon"]
+            sex=data["sex"]
+            QQ=data["QQ"]
+            integral=data["integral"]
+            if sex=="男":
+                sex=0
+            else:
+                sex=1
+            res=Info.objects.filter(id=user_id).update(user_name=user_name,email=email,level=level,icon=icon,sex=sex,integral=integral,one=QQ)
+            print(res) # 如果修改成功
+            return JsonResponse({"code":"修改成功"})
+        else:
+            return JsonResponse({"code":"修改失败"})
+    except Exception as e:
+        print(2222,e)
+
+# 验证密码
+def verifyPassword(request):
+    print(888888888888)
+    try:
+        if request.method=="POST":
+            req=json.loads(request.body)
+            tel=req["telephone"]
+            current_password=req["current_password"]
+            print(current_password)
+            password=User.objects.filter(telephone=tel).values("password")[0]["password"]
+            res=check_password_hash(password,current_password)
+            if res:
+                return JsonResponse({"code":"255"}) # 255代表验证密码成功
+            else:
+                return JsonResponse({"code": "455"})  # 455代表验证密码失败
+        else:
+            return JsonResponse({"code":"404"})
+    except Exception as e:
+        print("verifyPassword>>>>"+e)
+
+# 上传头像
+def uploadUsericon(request):
+    import uuid
+    print("上传头像")
+    if request.method=="POST":
+        try:
+            # 此处可以接收文件和字符串
+            f1=request.FILES["usericon"]
+            token=request.META.get("HTTP_TOKEN")
+            SECRECT_KEY = "orsp"
+            data = jwt.decode(str(token).encode(), SECRECT_KEY, audience='webkit', algorithms=['HS256'])
+            telephone = data["some"]["telephone"]
+            userid=User.objects.filter(telephone=telephone).values("id")[0]["id"]
+            # 文件名
+            filename = str(uuid.uuid4()) + '.' + f1.name.split('.')[1]
+            # 设置保存的文件名
+            fname="{0}/pic/{1}".format(settings.STATICFILES_DIRS[0],filename)
+            print(fname)
+            with open(fname,'wb')as pic:
+                for c in f1.chunks():
+                    pic.write(c)
+            res=Info.objects.filter(id=userid).update(icon=filename)
+            if res:
+                return JsonResponse({"filename":filename,"code":"218"})
+                # return JsonResponse({"filename": fname, "code":"218"}) # 图片在后台服务器里放着
+        except Exception as e:
+            print(e)
+            return JsonResponse({"code":"418"})
+    else:
+        return JsonResponse({"code:":"418"})
 
 # 获得省市二级联动
 def getCityProvince(request):
@@ -338,6 +426,9 @@ def insertData(request):
                 c = City.objects.create(**t)
                 print(2, c)
     return HttpResponse("成功")
+
+
+
 
 
 '''
