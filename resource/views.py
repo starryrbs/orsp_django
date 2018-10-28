@@ -62,20 +62,29 @@ def addCollect(request):
     if request.method=="POST":
         user_id=json.loads(request.body)["user_id"]
         resource_id=json.loads(request.body)["resource_id"]
-        print(user_id,resource_id)
+        operation=json.loads(request.body)["operation"]
         ins={
             "collect_resource_id":resource_id,
-            "user_id":user_id
+            "user_id":user_id,
         }
-        try:
-            if str(ins["collect_resource_id"]).__len__()<10:
+        # operation为1代表收藏
+        # try:
+        if str(ins["collect_resource_id"]).__len__()<10:
+            print("----------10----------------")
+            if operation==1:
                 res = User_collect.objects.create(**ins)
-                print(dir(res))
+                print(res)
             else:
-                res=db.collect
-            return JsonResponse({"code": "209"})
-        except Exception as ex:
-            return JsonResponse({"code": "409"})
+                res = User_collect.objects.filter(user_id=ins["user_id"],collect_resource_id=ins["collect_resource_id"]).delete()
+                print(res)
+        else:
+            if operation==1:
+                res=db.collect.insert(ins)
+            else:
+                db.collect.remove({"user_id":ins["user_id"],"collect_resource_id":ins["collect_resource_id"]},True)
+        return JsonResponse({"code": "209"})
+        # except Exception as ex:
+        #     return JsonResponse({"code": "409"})
 
     else:
         # 请求失败
@@ -91,7 +100,10 @@ def seeMyCollect(request):
     if request.method=="POST":
         user_id=json.loads(request.body)["user_id"]
         res=list(User_collect.objects.filter(user_id=user_id).values())
-        # 返回的数据
+        print(res)
+        res_mon=list(db.collect.find({"user_id":user_id}))
+        print(res_mon)
+        # # 返回的数据
         data=[]
         for i in res:
             print()
@@ -100,7 +112,25 @@ def seeMyCollect(request):
             data.append(good)
         print(data)
         data=formDatatime(data)
-        return HttpResponse(json.dumps(data))
+        for i in res_mon:
+            del i["_id"]
+        if "show" in json.loads(request.body):
+            print("--------------在这里面----------")
+            for i in range(len(res)):
+                collect_good=list(Products.objects.filter(id=res[i]["collect_resource_id"]).values())[0]
+                res[i]["name"]=collect_good["name"]
+                print("collect_good",collect_good)
+                res[i]["img_src"]='http://127.0.0.1:8000/media/pic/'+collect_good["imgurl"]
+
+            for i in range(len(res_mon)):
+                collect_good=list(db.taobao_goods.find({"_id":ObjectId(str(res_mon[i]["collect_resource_id"]))}))[0]
+                res_mon[i]["name"]=collect_good["title"]
+                res_mon[i]["img_src"]=collect_good["img_href"]
+        res.extend(res_mon)
+        print(res)
+        print(json.loads(request.body))
+
+        return HttpResponse(json.dumps(res))
     else:
         # 请求失败
         return JsonResponse({"code": "510"})
