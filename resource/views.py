@@ -68,8 +68,11 @@ def addCollect(request):
             "user_id":user_id
         }
         try:
-            res = User_collect.objects.create(**ins)
-            print(dir(res))
+            if str(ins["collect_resource_id"]).__len__()<10:
+                res = User_collect.objects.create(**ins)
+                print(dir(res))
+            else:
+                res=db.collect
             return JsonResponse({"code": "209"})
         except Exception as ex:
             return JsonResponse({"code": "409"})
