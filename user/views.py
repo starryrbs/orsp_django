@@ -64,12 +64,16 @@ def judgeToken(request):
     if request.method == "POST":
         # try:
         token = request.META.get("HTTP_TOKEN")
+        print("进入judgeToken方法，token", token)
         # 拿token中的数据
         SECRECT_KEY = "orsp"
         data = jwt.decode(str(token).encode(), SECRECT_KEY, audience='webkit', algorithms=['HS256'])
+        print(data['some']["telephone"])
         telephone = data['some']["telephone"]
         res = list(User.objects.filter(telephone=telephone).values())
+        print(res[0]["id"])
         res_data = list(Info.objects.filter(id=res[0]["id"]).values())
+        print(res_data)
         print("end judgeToken")
         if res_data:
             return JsonResponse({"id": res_data[0]["id"], "user_name": res_data[0]["user_name"]})
@@ -358,7 +362,52 @@ def uploadUsericon(request):
     else:
         return JsonResponse({"code:":"418"})
 
+# 获得省市二级联动
+def getCityProvince(request):
+
+    data=[]
+    province=Province.objects.all().values()
+    for i in range(len(province)):
+        print(province[i])
+        data.append(province[i])
+        city=list(City.objects.filter(c_p_id=province[i]["id"]).values())
+        data[i]["city"]=city
+    print(data)
+    return HttpResponse(json.dumps(data))
+
+
+# 添加用户收货地址
+def addAddress(request):
+    if request.method=="POST":
+        user_id=json.loads(request.body)["user_id"]
+        connect_name=json.loads(request.body)["concact_name"]
+        concact_telephone=json.loads(request.body)["concact_telephone"]
+        city_id=json.loads(request.body)["city_id"]
+        provice_id=json.loads(request.body)["provice_id"],
+        default=json.loads(request.body)["default"],
+        print(provice_id)
+        ins_data = {
+            "user_id": user_id,
+            "concact_name": connect_name,
+            "concact_telephone": concact_telephone,
+            "city_id": city_id,
+            "provice_id": provice_id[0],
+        }
+        if default[0]:
+            Address.objects.filter(user_id=user_id).update(default=0)
+            ins_data["default"]=1
+        else:
+            ins_data["default"]=0
+        print(ins_data)
+        res=Address.objects.create(**ins_data)
+        print(res)
+        return JsonResponse({"code": "287"})
+    else:
+        # 请求失败
+        return JsonResponse({"code": "510"})
 # 这里是用来插入数据的
+
+
 def insertData(request):
     import json
     with open('test/p_c.json', 'r', encoding='utf-8') as f:
