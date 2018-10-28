@@ -150,24 +150,27 @@ def delmyupfile(request):
 def commentFile(request):
     pass
 
-    def showfile(request):
-        if request.method == "GET":
-            resource_id = request.GET.get("id")
-            res = Resource.objects.filter(id=resource_id).values("name", "download_count", "upload_user", "describe")
-            res = list(res)
-            filename = res[0]["name"]
-            download_count = res[0]["download_count"]
-            user_id = res[0]["upload_user"]
-            user_name = list(Info.objects.filter(id=user_id).values("user_name"))[0]["user_name"]
-            describe = res[0]["describe"]
-            file = {
-                "filename": filename,
-                "download_count": download_count,
-                "upload_user": user_name,
-                "describe": describe
-            }
-            print(file)
-            return JsonResponse({"file": file})
+# 查看文件信息(包括文件名,被下载次数,上传人,评论信息) 传过来一个资源id
+def showfile(request):
+    if request.method == "GET":
+        resource_id = request.GET.get("id")
+        res = Resource.objects.filter(id=resource_id).values("name", "download_count", "upload_user", "describe")
+        res = list(res)
+        filename = res[0]["name"]
+        download_count = res[0]["download_count"]
+        user_id = res[0]["upload_user"]
+        user_name = list(Info.objects.filter(id=user_id).values("user_name"))[0]["user_name"]
+        describe = res[0]["describe"]
+        file = {
+            "filename": filename,
+            "download_count": download_count,
+            "upload_user": user_name,
+            "describe": describe
+        }
+        print(file)
+        return JsonResponse({"file": file})
+    else:
+        return JsonResponse({"code": "404"})
 
 
 # 添加收藏 传过来用户的telephone和要收藏资源的id
@@ -249,3 +252,13 @@ def showAllFile(request):
         res[i]["upload_user"]=list(Info.objects.filter(id=res[i]["upload_user_id"]).values())[0]["user_name"]
     print(res)
     return HttpResponse(json.dumps(res))
+
+def getTechnicalField(request):
+    data=list(TechnicalField.objects.all().values())
+    print(data)
+    return HttpResponse(json.dumps(data))
+
+def getResourceType(request):
+    data=list(ResourceType.objects.all().values())
+    print(data)
+    return HttpResponse(json.dumps(data))

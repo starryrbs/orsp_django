@@ -9,6 +9,12 @@ class ResourceType(models.Model):
 class TechnicalField(models.Model):
     name=models.CharField(max_length=20)
 
+# 二级技术领域表
+class TwoTechnicalField(models.Model):
+    name=models.CharField(max_length=20)
+    technicalFieldId=models.ForeignKey(to=TechnicalField,to_field='id',on_delete=models.CASCADE,default=1)
+
+
 # 这是文件资源的信息表
 class Resource(models.Model):
     # 后面要加上评论id
@@ -24,7 +30,7 @@ class Resource(models.Model):
     title=models.CharField(null=True,max_length=80)
     describe=models.CharField(null=True,max_length=80)
     resourceTypeId=models.ForeignKey(to=ResourceType,to_field='id',on_delete=models.CASCADE,default=1)
-    technicalFieldId=models.ForeignKey(to=TechnicalField,to_field='id',on_delete=models.CASCADE,default=1)
+    twoTechnicalFieldId=models.ForeignKey(to=TwoTechnicalField,to_field='id',on_delete=models.CASCADE,default=1)
     # 用户收藏表
 class Collect(models.Model):
     user=models.ForeignKey(to=User,to_field='id',on_delete=models.CASCADE,default=1)
