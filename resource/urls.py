@@ -27,6 +27,8 @@ urlpatterns = [
     url(r'^paymentguaranty/', views.paymentGuaranty, name="paymentGuaranty"),
     # 查看我的订单
     url(r'^seemyorder/', views.seeMyOrder, name="seemyorder"),
+    # 删除订单
+    url(r'^deletemyorder/', views.deleteMyOrder, name="deletemyorder"),
     # 查看交换请求
     url(r'^seechange/', views.seeChange, name="seechange"),
     # 卖家同意或者拒绝对方订单

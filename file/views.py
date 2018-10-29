@@ -34,8 +34,12 @@ def saveFile(request):
     print(json.loads(request.body))
     data = json.loads(request.body)
     print("data", data)
-    resourceTypeId_id=list(ResourceType.objects.filter(name=data["resourceType"]).values())[0]["id"]
-    data["resourceTypeId_id"]=resourceTypeId_id
+    try:
+        resourceTypeId_id = list(ResourceType.objects.filter(name=data["resourceType"]).values())[0]["id"]
+        data["resourceTypeId_id"] = resourceTypeId_id
+    except Exception as ex:
+        print(ex)
+        data["resourceTypeId_id"]=1
     del data["resourceType"]
     data["share_num"]=0
     data["like_num"]=0

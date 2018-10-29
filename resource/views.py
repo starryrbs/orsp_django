@@ -7,11 +7,12 @@ from utils.mongodb_connect import *
 import re
 import uuid
 from orsp_django import settings
-from utils.formatDatatime import formDatatime,timestamp_from_objectid
+from utils.formatDatatime import formDatatime, timestamp_from_objectid
 from utils.objectId_time import general_obj_from_time
 from bson.objectid import ObjectId
 from django.db.models import Q
 import bson
+
 
 # Create your views here.
 # 获取商品类型
@@ -32,23 +33,22 @@ def getGoodTypeTwo(request):
     return HttpResponse(json.dumps(data, ensure_ascii=False))
 
 
-
 # 获取三级商品类型
 # 请求中包含一个商品二级类型
 def getGoodTypeThree(request, good_type):
     if request.method == "GET" and good_type:
         print(good_type)
-        data=[]
-        ids=str(good_type).split(',')
+        data = []
+        ids = str(good_type).split(',')
         for i in range(len(ids)):
-            res_two =list(Product_type_two.objects.filter(id=ids[i]).values())
-            print(1,res_two)
+            res_two = list(Product_type_two.objects.filter(id=ids[i]).values())
+            print(1, res_two)
             if res_two:
                 data.append(res_two[0])
-                two_id=res_two[0]["id"]
-                res_three=list(Product_type_three.objects.filter(two_id_id=two_id).values())[0:20]
-                print(2,res_three)
-                data[i]["category"]=res_three
+                two_id = res_two[0]["id"]
+                res_three = list(Product_type_three.objects.filter(two_id_id=two_id).values())[0:20]
+                print(2, res_three)
+                data[i]["category"] = res_three
                 print(data)
 
         return HttpResponse(json.dumps(data))
@@ -59,52 +59,89 @@ def getGoodTypeThree(request, good_type):
 # 添加收藏
 # 传过来一个用户id,和商品id
 def addCollect(request):
-    if request.method=="POST":
-        user_id=json.loads(request.body)["user_id"]
-        resource_id=json.loads(request.body)["resource_id"]
-        print(user_id,resource_id)
-        ins={
-            "collect_resource_id":resource_id,
-            "user_id":user_id
+    if request.method == "POST":
+        user_id = json.loads(request.body)["user_id"]
+        resource_id = json.loads(request.body)["resource_id"]
+        operation = json.loads(request.body)["operation"]
+        ins = {
+            "collect_resource_id": resource_id,
+            "user_id": user_id,
         }
-        try:
-            res = User_collect.objects.create(**ins)
-            print(dir(res))
-            return JsonResponse({"code": "209"})
-        except Exception as ex:
-            return JsonResponse({"code": "409"})
+        # operation为1代表收藏
+        # try:
+        if str(ins["collect_resource_id"]).__len__() < 10:
+            print("----------10----------------")
+            if operation == 1:
+                res = User_collect.objects.create(**ins)
+                print(res)
+            else:
+                res = User_collect.objects.filter(user_id=ins["user_id"],
+                                                  collect_resource_id=ins["collect_resource_id"]).delete()
+                print(res)
+        else:
+            if operation == 1:
+                res = db.collect.insert(ins)
+            else:
+                db.collect.remove({"user_id": ins["user_id"], "collect_resource_id": ins["collect_resource_id"]}, True)
+        return JsonResponse({"code": "209"})
+        # except Exception as ex:
+        #     return JsonResponse({"code": "409"})
 
     else:
         # 请求失败
-        return JsonResponse({"code":"510"})
+        return JsonResponse({"code": "510"})
 
 
 # 取消收藏
 def cancelCollect(request):
     pass
 
-#查看我的收藏
+
+# 查看我的收藏
 def seeMyCollect(request):
-    if request.method=="POST":
-        user_id=json.loads(request.body)["user_id"]
-        res=list(User_collect.objects.filter(user_id=user_id).values())
-        # 返回的数据
-        data=[]
+    if request.method == "POST":
+        user_id = json.loads(request.body)["user_id"]
+        res = list(User_collect.objects.filter(user_id=user_id).values())
+        print(res)
+        res_mon = list(db.collect.find({"user_id": user_id}))
+        print(res_mon)
+        # # 返回的数据
+        data = []
         for i in res:
             print()
-            res_id=i["collect_resource_id"]
-            good=list(Products.objects.filter(id=res_id).values())[0]
+            res_id = i["collect_resource_id"]
+            good = list(Products.objects.filter(id=res_id).values())[0]
             data.append(good)
         print(data)
-        data=formDatatime(data)
-        return HttpResponse(json.dumps(data))
+        data = formDatatime(data)
+        for i in res_mon:
+            del i["_id"]
+        if "show" in json.loads(request.body):
+            print("--------------在这里面----------")
+            for i in range(len(res)):
+                collect_good = list(Products.objects.filter(id=res[i]["collect_resource_id"]).values())[0]
+                res[i]["name"] = collect_good["name"]
+                print("collect_good", collect_good)
+                res[i]["img_src"] = 'http://127.0.0.1:8000/media/pic/' + collect_good["imgurl"]
+
+            for i in range(len(res_mon)):
+                collect_good = list(db.taobao_goods.find({"_id": ObjectId(str(res_mon[i]["collect_resource_id"]))}))[0]
+                res_mon[i]["name"] = collect_good["title"]
+                res_mon[i]["img_src"] = collect_good["img_href"]
+        res.extend(res_mon)
+        print(res)
+        print(json.loads(request.body))
+
+        return HttpResponse(json.dumps(res))
     else:
         # 请求失败
         return JsonResponse({"code": "510"})
+
+
 # 上传商品
 # 上传商品要指定一个三级商品类型,价格,图片的url,描述,用户id,上传时间是当前时间,名字
 def uploadGoods(request):
-    if request.method=="POST":
+    if request.method == "POST":
         try:
             file = request.FILES["good_icon"]
             print(file)
@@ -143,7 +180,7 @@ def uploadGoods(request):
                 "category": category,
                 "product_type_id": product_type_id,
                 "user_id": user_id,
-                "imgurl":filename
+                "imgurl": filename
             }
             print(ins)
             Products.objects.create(**ins)
@@ -153,19 +190,20 @@ def uploadGoods(request):
             return JsonResponse({"code": "499"})
     else:
         # 请求失败
-        return JsonResponse({"code":"510"})
+        return JsonResponse({"code": "510"})
+
 
 # 根据用户id查看用户上传的商品
 def seeGoodsById(request):
-    if request.method=="POST":
+    if request.method == "POST":
         id = json.loads(request.body)["id"]
         print(id)
-    #     去用户上传商品表查询所有的信息
-        res=list(Products.objects.filter(user_id=id).values())
-        print(1111111111111,res)
+        #     去用户上传商品表查询所有的信息
+        res = list(Products.objects.filter(user_id=id).values())
+        print(1111111111111, res)
         if res:
             print(res)
-            res=formDatatime(res)
+            res = formDatatime(res)
             print(res[0]["product_type_id"])
             for i in range(len(res)):
                 product_type = list(Product_type_three.objects.filter(id=res[i]["product_type_id"]).values())[0][
@@ -176,65 +214,81 @@ def seeGoodsById(request):
             print(res)
             return HttpResponse(json.dumps(res))
         else:
-            return JsonResponse({"code":"519"})
+            return JsonResponse({"code": "519"})
     else:
-        return JsonResponse({"code":"520"})
+        return JsonResponse({"code": "520"})
+
 
 # 拿到mongodb里面的商品数据
 def getGoods(request):
     data = db.taobao_goods.find().limit(20)
-    res_data=[]
+    res_data = []
     for i in data:
         print(i)
         del i["_id"]
         res_data.append(i)
-    print(1,res_data)
+    print(1, res_data)
     return HttpResponse(json.dumps(res_data))
 
+
 def searchGoods(request):
-    print(request.GET.get('good'))
-    good=request.GET.get('good')
-    index=int(request.GET.get('index'))
+    print(1111111,request.GET.get('good'))
+    good = request.GET.get('good')
+    index = int(request.GET.get('index'))
+    try:
+        max_price = request.GET.get('max_price')
+        min_price = request.GET.get('min_price')
+        print(max_price,min_price)
+        data = db.taobao_goods.find(
+            {"$or": [{"belong_to": good}, {"belong_name": good}, {"title": {"$regex": good}}, {"address": good}],"price":{"$gt":float(min_price),"$lt":float(max_price)}}).limit(500).skip(index)
+
+    except Exception as ex:
+        print("出现错误",ex)
+        data = db.taobao_goods.find(
+            {"$or": [{"belong_to": good}, {"belong_name": good}, {"title": {"$regex": good}}, {"address": good}]}).sort(
+            [("title", 1)]).limit(500).skip(index)
     # db.company.find({\$or: [{catagory: “IT”}, {region: “Beijing”}]});
     # find({"$or":[{"catagory":good},{"belong_name":good}]})
-    data = db.taobao_goods.find({"$or":[{"belong_to":good},{"belong_name":good},{"title":{"$regex":good}},{"address":good}]}).limit(500).skip(index)
+    # data = db.taobao_goods.find(
+    #     {"$or": [{"belong_to": good}, {"belong_name": good}, {"title": {"$regex": good}}, {"address": good}]}).sort(
+    #     [("title", 1)]).limit(500).skip(index)
     # aa = db.taobao_goods.find({"$or":[{"belong_to":good},{"belong_name":good},{"title":good},{"address":good}]})
     # print(aa)
-    res=list(Products.objects.filter(Q(name__icontains=good) | Q(description__icontains=good)| Q(title__icontains=good)).values())
+    res = list(Products.objects.filter(
+        Q(name__icontains=good) | Q(description__icontains=good) | Q(title__icontains=good)).values())
     for i in res:
-        i["Stock"]=i["category"]
-        i["payNum"]=i["pnum"]
-        i["img_href"]='http://127.0.0.1:8000/media/pic/'+str(i["imgurl"])
-        i["sales_num"]=str(i["pnum"])+'人付款'
-        product_type=list(Product_type_three.objects.filter(id=i["product_type_id"]).values())[0]
-        i["belong_name"]=product_type["product_type"]
-        i["belong_to"]=list(Product_type_two.objects.filter(id=product_type["two_id_id"]).values())[0]["product_type"]
-        i["shop"]=list(Info.objects.filter(id=i["user_id"]).values())[0]["user_name"]
-        i["address"]="江苏苏州"
-        i["change"]="打印机"
-        i["user"]=i["user_id"]
-        i["_id"]=i["id"]
+        i["Stock"] = i["category"]
+        i["payNum"] = i["pnum"]
+        i["img_href"] = 'http://127.0.0.1:8000/media/pic/' + str(i["imgurl"])
+        i["sales_num"] = str(i["pnum"]) + '人付款'
+        product_type = list(Product_type_three.objects.filter(id=i["product_type_id"]).values())[0]
+        i["belong_name"] = product_type["product_type"]
+        i["belong_to"] = list(Product_type_two.objects.filter(id=product_type["two_id_id"]).values())[0]["product_type"]
+        i["shop"] = list(Info.objects.filter(id=i["user_id"]).values())[0]["user_name"]
+        i["address"] = "江苏苏州"
+        i["change"] = "打印机"
+        i["user"] = i["user_id"]
+        i["_id"] = i["id"]
     print("----------------")
     print(res)
 
+    print("这是查询用户上传的商品信息", res)
 
-    print("这是查询用户上传的商品信息",res)
-
-    res_data=[]
+    res_data = []
     for i in data:
         print(i)
-        i["_id"]=bson.objectid.ObjectId(i["_id"]).__str__()
+        i["_id"] = bson.objectid.ObjectId(i["_id"]).__str__()
         print(i["_id"])
         res_data.append(i)
-    print(1,res_data)
-    res=formDatatime(res)
+    print(1, res_data)
+    res = formDatatime(res)
     res_data.extend(res)
     print("=============")
     print(res_data)
 
-
-
     return HttpResponse(json.dumps(res_data))
+
+
 # 下架商品
 def downloadGoods(request):
     pass
@@ -242,59 +296,73 @@ def downloadGoods(request):
 
 # 生成订单
 def generateOrder(request):
-    if request.method=="POST":
-        sellerSelectGood=json.loads(request.body)["sellerSelectGood"]
-        buyerSelectGood=json.loads(request.body)["buyerSelectGood"]
-        generateTime=datetime.datetime.now().strftime('%Y-%m-%D %H:%M:%S')
-        sellerSelectGood=json.loads(sellerSelectGood)
-        buyerSelectGood=json.loads(buyerSelectGood)
+    if request.method == "POST":
+        sellerSelectGood = json.loads(request.body)["sellerSelectGood"]
+        buyerSelectGood = json.loads(request.body)["buyerSelectGood"]
+        generateTime = datetime.datetime.now().strftime('%Y-%m-%D %H:%M:%S')
+        sellerSelectGood = json.loads(sellerSelectGood)
+        buyerSelectGood = json.loads(buyerSelectGood)
 
         # 卖家是否确定订单 已确认1  未确认0
-        sellerSelectGood["status"]=0
+        sellerSelectGood["status"] = 0
         # 保障金是否缴纳  0未交 1 已经缴纳
-        sellerSelectGood["guarantyStatus"]=0
+        sellerSelectGood["guarantyStatus"] = 0
         print(type(sellerSelectGood["price"]))
         # 保障金金额默认为对方商品价格的一半
-        sellerSelectGood["guaranty"]=float(buyerSelectGood["price"])/2
-        buyerSelectGood["status"]=1
-        buyerSelectGood["guarantyStatus"]=0
-        buyerSelectGood["guaranty"]=float(sellerSelectGood["price"])/2
+        sellerSelectGood["guaranty"] = float(buyerSelectGood["price"]) / 2
+        buyerSelectGood["status"] = 1
+        buyerSelectGood["guarantyStatus"] = 0
+        buyerSelectGood["guaranty"] = float(sellerSelectGood["price"]) / 2
 
-        data={
-            "sellerSelectGood":sellerSelectGood,
-            "buyerSelectGood":buyerSelectGood,
-            "generateTime":generateTime,
-            "id":str(uuid.uuid4())
+        data = {
+            "sellerSelectGood": sellerSelectGood,
+            "buyerSelectGood": buyerSelectGood,
+            "generateTime": generateTime,
+            "id": str(uuid.uuid4())
         }
         print(data)
-        res=db.order.insert(data)
-        return JsonResponse({"insert_id":data["id"]})
+        res = db.order.insert(data)
+        return JsonResponse({"insert_id": data["id"]})
     else:
-        return JsonResponse({"code":"520"})
+        return JsonResponse({"code": "520"})
+
 
 # 支付担保金
 def paymentGuaranty(request):
-    if request.method=="POST":
+    if request.method == "POST":
         id = json.loads(request.body)["id"]
         selectAddressByUser = json.loads(request.body)["selectAddressByUser"]
         selectExpressByUser = json.loads(request.body)["selectExpressByUser"]
-        print(id)
-        res=db.order.update({"id": id}, {'$set': {"buyerSelectGood.guarantyStatus": 1,"buyerSelectGood.selectAddressByUser":selectAddressByUser,"buyerSelectGood.selectExpressByUser":selectExpressByUser}})
+        print("id是",id)
+        res = db.order.update({"id": id}, {
+            '$set': {"buyerSelectGood.guarantyStatus": 1, "buyerSelectGood.selectAddressByUser": selectAddressByUser,
+                     "buyerSelectGood.selectExpressByUser": selectExpressByUser}})
         print(res)
-        return JsonResponse({"code":"215"})
+        return JsonResponse({"code": "215"})
     else:
-        return JsonResponse({"code":"520"})
+        return JsonResponse({"code": "520"})
     # 查看商品详情
+
 
 # 查看我的订单
 def seeMyOrder(request):
-    id=json.loads(request.body)["id"]
-    res=list(db.order.find({"buyerSelectGood.user_id": str(id)}))
+    id = json.loads(request.body)["id"]
+    res = list(db.order.find({"buyerSelectGood.user_id": str(id)}))
     print(res)
     for i in res:
         del i["_id"]
     print(res)
     return HttpResponse(json.dumps(res))
+def deleteMyOrder(request):
+    if request.method == "POST":
+        id = json.loads(request.body)["id"]
+        user_id = json.loads(request.body)["user_id"]
+        res = db.order.remove({"id": str(id),"buyerSelectGood.user_id":user_id})
+        return HttpResponse("ok")
+    else:
+        # 请求失败
+        return JsonResponse({"code": "510"})
+
 def showGoods(request):
     pass
 
@@ -306,37 +374,43 @@ def commentGoods(request):
 
 #
 def seeChange(request):
-    user_id=json.loads(request.body)["user_id"]
-    res=list(db.order.find({"sellerSelectGood.user":str(user_id)}))
+    user_id = json.loads(request.body)["user_id"]
+    res = list(db.order.find({"sellerSelectGood.user": str(user_id)}))
     print(res)
     for i in res:
-        i["_id"]=timestamp_from_objectid(i["_id"])
-    print(1111111111,res)
+        i["_id"] = timestamp_from_objectid(i["_id"])
+    print(1111111111, res)
     return HttpResponse(json.dumps(res))
+
+
 
 # 卖家同意交换请求
 def sellerAgree(request):
-    if request.method=="POST":
-        user_id=json.loads(request.body)["user_id"]
-        operation=json.loads(request.body)["operation"]
-        _id=json.loads(request.body)["_id"]
+    if request.method == "POST":
+        user_id = json.loads(request.body)["user_id"]
+        operation = json.loads(request.body)["operation"]
+        _id = json.loads(request.body)["_id"]
         print(_id)
-    #     operation为1代表同意请求，操作码为-1代表拒绝
-        res=db.order.update({"sellerSelectGood.user":str(user_id),"sellerSelectGood._id":_id},{'$set':{"sellerSelectGood.status":int(operation)}})
+        #     operation为1代表同意请求，操作码为-1代表拒绝
+        res = db.order.update({"sellerSelectGood.user": str(user_id), "sellerSelectGood._id": _id},
+                              {'$set': {"sellerSelectGood.status": int(operation)}})
         print(res)
-        return JsonResponse({"code":"298"})
+        return JsonResponse({"code": "298"})
     else:
         # 请求失败
         return JsonResponse({"code": "510"})
+
+
 from pymongo import MongoClient
+
 
 # 查询买家已经买到的订单，就是卖家已经同意
 def showBuy(request):
-    if request.method=="POST":
-        user_id=json.loads(request.body)["user_id"]
+    if request.method == "POST":
+        user_id = json.loads(request.body)["user_id"]
         print(user_id)
-    #     operation为1代表同意请求，操作码为-1代表拒绝
-        res=list(db.order.find({"buyerSelectGood.user_id":user_id,"sellerSelectGood.status":1}))
+        #     operation为1代表同意请求，操作码为-1代表拒绝
+        res = list(db.order.find({"buyerSelectGood.user_id": user_id, "sellerSelectGood.status": 1}))
         print(res)
         for i in res:
             del i["_id"]
@@ -345,6 +419,8 @@ def showBuy(request):
     else:
         # 请求失败
         return JsonResponse({"code": "510"})
+
+
 # 这里是用来插入数据的
 def insertData(request):
     import json
@@ -385,6 +461,6 @@ def getGuoMei(request):
     #     i["_id"]=timestamp_from_objectid(i["_id"])
     #     print(i["_id"])
     #     res_data.append(i)
-    with open('resource/data/data.json','r',encoding='utf-8') as f:
-        res_data=f.read()
+    with open('resource/data/data.json', 'r', encoding='utf-8') as f:
+        res_data = f.read()
     return HttpResponse(res_data)
