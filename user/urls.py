@@ -41,6 +41,10 @@ urlpatterns = [
     # 给管理员留言功能
     url(r'leaveword/',views.leaveWord,name='leaveword'),
     # 花钱购买积分
+    # 获取短信验证码
+    url(r'sendverificationcode/', views.sendcode, name='sendVerificationCode'),
+    # 验证码验证
+    url(r'yezheng/', views.yezheng, name='yezheng'),
 
     url(r'buyintegral/',views.buyIntegral,name='buyintegral'),
     # 获得省市二级联动
