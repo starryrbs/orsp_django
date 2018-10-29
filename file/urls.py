@@ -31,7 +31,7 @@ urlpatterns = [
     url(r'^cancelfile/',views.cancelfile,name="cancelfile"),
     # # 查看文件信息(包括文件名,被下载次数,上传人,评论信息)
     url(r'^showfile/',views.showfile,name="showfile"),
-    # 查看 上传文件
+    # 查看上传文件
     url(r'^showmyupfile',views.showmyupfile,name="showmyupfile"),
     # 评论资源功能
     url(r'^commentfile/',views.commentFile,name="commentfile"),
@@ -43,8 +43,13 @@ urlpatterns = [
     url(r'^detectionrepetition/',views.detectionRepetition,name="detectionrepetition"),
     # 删除上传文件
     url(r'^delmyupfile/',views.delmyupfile,name="delmyupfile"),
-#     查看所有用户上传的文件
+    # 查看所有用户上传的文件
     url(r'^showallfile/', views.showAllFile, name="showallfile"),
+    # 拿到技术领域一级类型
+    url(r'^gettechnicalfield/', views.getTechnicalField, name="gettechnicalfield"),
+    # 拿到资源类型
+    url(r'^getresourcetype/', views.getResourceType, name="getresourcetype"),
+
 ]
 '''
 
