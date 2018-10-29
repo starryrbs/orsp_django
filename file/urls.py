@@ -27,10 +27,12 @@ urlpatterns = [
     # # 下载文件
     url(r'^downloadfile/',views.downloadfile,name="downloadfile"),
     url(r'^checkdownloadfile/',views.checkdownloadfile,name="checkdownloadfile"),
-    # # 取消上传的文件
+    # 取消上传的文件
     url(r'^cancelfile/',views.cancelfile,name="cancelfile"),
-    # # 查看文件信息(包括文件名,被下载次数,上传人,评论信息)
+    # 查看文件信息(包括文件名,被下载次数,上传人,评论信息)
     url(r'^showfile/',views.showfile,name="showfile"),
+    # 查看已下载文件
+    url(r'^showdownloadfile/', views.showDownloadFile, name="showdownloadfile"),
     # 查看上传文件
     url(r'^showmyupfile',views.showmyupfile,name="showmyupfile"),
     # 评论资源功能
@@ -47,9 +49,10 @@ urlpatterns = [
     url(r'^showallfile/', views.showAllFile, name="showallfile"),
     # 拿到技术领域一级类型
     url(r'^gettechnicalfield/', views.getTechnicalField, name="gettechnicalfield"),
+    # 拿到技术领域一级类型
+    url(r'^gettwotechnicalfield/', views.getTwoTechnicalField, name="gettwotechnicalfield"),
     # 拿到资源类型
     url(r'^getresourcetype/', views.getResourceType, name="getresourcetype"),
-
 ]
 '''
 

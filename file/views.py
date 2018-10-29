@@ -7,6 +7,7 @@ from user.models import *
 import json
 from django.http import FileResponse
 from utils.formatDatatime import *
+import jwt
 
 # Create your views here.
 def uploadFile(request):
@@ -113,6 +114,36 @@ def showfile(request):
         }
         print(file)
         return JsonResponse({"file": file})
+    else:
+        return JsonResponse({"code": "404"})
+
+# 查看已下载的文件
+def showDownloadFile(request):
+    if request.method=="POST":
+        try:
+            token=request.META.get("HTTP_TOKEN")
+            SECRECT_KEY='orsp'
+            data=jwt.decode(str(token).encode(),SECRECT_KEY,audience='webkit',algorithms=['HS256'])
+            tel=data["some"]["telephone"]
+            userid=User.objects.filter(telephone=tel).values("id")[0]
+            uploadcount = Resource.objects.filter(upload_user=userid).count()  # 我上传文件的次数
+            print("上传次数" + uploadcount)
+            downloadcount = Download.objects.filter(upload_user=userid).count()  # 我下载文件的次数
+            print("下载次数" + downloadcount)
+            fileid=list(Download.objects.filter(user=userid).values("file"))  # 我下载的文件id
+            uu=[]
+            for i in fileid:
+                mes=Resource.objects.filter(id=i.file).values("describe","upload_time","need_integral","upload_user")
+                upload_user_name=Info.objects.filter(id=mes["upload_user"]).values("user_name")[0]  # 被下载文件的上传者
+                mes["upload_user_name"]=upload_user_name
+                uu.append(mes)
+            print("最后的数据"+uu)
+            return JsonResponse(uu)
+        except Exception as e:
+            print(e)
+    else:
+        return JsonResponse({"code":"404"})
+
 
 
 # 查看文件信息(包括文件名,被下载次数,上传人,评论信息)
@@ -126,7 +157,6 @@ def showmyupfile(request):
                     i['upload_time'] = str(i['upload_time'])
                 return HttpResponse(json.dumps(list(qid), ensure_ascii=False))
             else:
-
                 return JsonResponse({"code": "518"})
     except Exception as ex:
         return JsonResponse({"code": "510"})
@@ -255,6 +285,13 @@ def showAllFile(request):
 
 def getTechnicalField(request):
     data=list(TechnicalField.objects.all().values())
+    print(data)
+    return HttpResponse(json.dumps(data))
+
+def getTwoTechnicalField(request):
+    technicalFieldId=request.GET.get("id")
+    data=list(TwoTechnicalField.objects.filter(technicalFieldId=technicalFieldId).values())
+    # data=list(TwoTechnicalField.objects.all().values())
     print(data)
     return HttpResponse(json.dumps(data))
 
