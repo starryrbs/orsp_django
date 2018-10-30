@@ -20,6 +20,7 @@ from django.conf.urls import include
 from . import views
 app_name="file"
 urlpatterns = [
+    url(r'^whetherdownload/', views.whetherdownload, name="whetherdownload"),
     # 这里是上传文件已经成功,存储文件信息与用户信息 我的上传
     url(r'^uploadfile/',views.uploadFile,name="uploadfile"),
     # 保存文件的信息
@@ -33,6 +34,7 @@ urlpatterns = [
     url(r'^showfile/',views.showfile,name="showfile"),
     # 查看已下载文件
     url(r'^showdownloadfile/', views.showDownloadFile, name="showdownloadfile"),
+    # 判断是否已下载
     # 查看上传文件
     url(r'^showmyupfile',views.showmyupfile,name="showmyupfile"),
     # 评论资源功能
@@ -41,6 +43,8 @@ urlpatterns = [
     url(r'^addcollect/',views.addCollect,name="addcollect"),
     # 取消收藏
     url(r'^cancelcollect/',views.cancelCollect,name="cancelcollect"),
+    # 收藏人数
+    url(r'^collectnumber/',views.collectnumber,name="collectnumber"),
     # 检测文件重复(根据标题)
     url(r'^detectionrepetition/',views.detectionRepetition,name="detectionrepetition"),
     # 删除上传文件
