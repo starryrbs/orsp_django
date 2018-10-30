@@ -307,8 +307,6 @@ def collectnumber(request):
         return JsonResponse({"code":"404"})
 
 
-
-
 # 检测文件重复(根据标题) 传过来一个title
 def detectionRepetition(request):
     if request.method == "GET":
