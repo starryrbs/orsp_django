@@ -6,6 +6,8 @@ import re
 from werkzeug.security import generate_password_hash, check_password_hash
 from utils.token_get import *
 from orsp_django import settings
+from django.db.models import Q
+from utils.mongodb_connect import *
 
 
 # Create your views here.
@@ -88,7 +90,6 @@ def judgeToken(request):
 
 # 用户注册
 def register(request):
-    print(111111111111111111)
     # 账号注册,需要用户名,密码,手机号
     if request.method == "POST":
         # 验证手机号
@@ -100,7 +101,7 @@ def register(request):
             try:
                 if len(password) >= 6:
                     password = generate_password_hash(password, method='pbkdf2:sha1:2000', salt_length=8)
-                    print(password)
+
                     user_name = json.loads(request.body)["user_name"]
                     ins_info = {
                         "user_name": user_name
@@ -110,10 +111,9 @@ def register(request):
                         "telephone": telephone,
                         "password": password,
                     }
-                    print("要插入用户表的数据", ins_user)
+
                     res_in_user = User.objects.create(**ins_user)
-                    print(res_in_user)
-                    print("ins_info", ins_info, "ins_user", ins_user)
+
                     res_token = jwtEncoding(ins_user)
                     # 生成token
                     response = JsonResponse({"code": "205"})
@@ -137,7 +137,6 @@ def register(request):
 
 # 修改密码
 def changePsd(request):
-    print(11)
     if request.method == "POST":
         req = json.loads(request.body)
         password = User.objects.filter(telephone=req['telephone']).values("password")[0]["password"]
@@ -145,18 +144,18 @@ def changePsd(request):
         if res_psd:
             if req['new_password'] == req['new_password_verify']:
                 a = User.objects.get(telephone=req['telephone'])
-                print(a)
+
                 a.password = generate_password_hash(req['new_password'], method='pbkdf2:sha1:2000', salt_length=8)
                 a.save()
                 # 修改成功
-                print(1)
+
                 return JsonResponse({"code": "211"})
             else:
-                print(33)
+
                 # 两次密码不一致
                 return JsonResponse({"code": "516"})
         else:
-            print(22)
+
             # 用户密码错误
             return JsonResponse({"code": "514"})
     else:
@@ -169,7 +168,7 @@ def getUsericon(request):
     if request.method == 'POST':
         try:
             getlist = json.loads(request.body)
-            print(getlist)
+
             # print(job)
             # res就是正在插入的对象
             # res = models.job.objects.create(**job)
@@ -185,38 +184,47 @@ def getUsericon(request):
     else:
         return JsonResponse({"code": "510"})
 
+
 def changeaddress(request):
     if request.method == 'POST':
         getdata = json.loads(request.body)
-        print(getdata)
-        print('sssssssssssssssss',getdata['index'],getdata['userid'],getdata['id'])
-        index=getdata['index']
+        index = getdata['index']
         # Address.objects.filter(user_id=getdata['id']).update(default='0')
         Address.objects.filter(user_id=getdata['userid']).update(default='0')
         Address.objects.filter(id=getdata['id']).update(default='1')
     else:
         return JsonResponse({"code": "510"})
+
+
+def deladdress(request):
+    if request.method == 'POST':
+        getdata = json.loads(request.body)
+        print(getdata)
+        print('sssssssssssssssss',getdata['userid'], getdata['id'])
+        Address.objects.filter(id=getdata['id']).delete()
+    else:
+        return JsonResponse({"code": "510"})
+
+
 # 根据用户id查询用户地址
 def getAddresById(request):
-    if request.method=="POST":
+    if request.method == "POST":
         id = json.loads(request.body)
         id = id['id']
         # 去查询手机号
-        print('ssssssss',id)
         res = list(Address.objects.filter(user_id=id).values())
-        print("查询地址结果", res)
         for r in res:
-            print(City.objects.filter(id=r["city_id"]).values('city_name'))
             r["provice_id"] = list(Province.objects.filter(id=r["provice_id"]).values('province_name'))[0][
                 "province_name"]
             r["city_id"] = list(City.objects.filter(id=r["city_id"]).values('city_name'))[0]["city_name"]
-        print(res)
+
         return HttpResponse(json.dumps(res))
     else:
         return JsonResponse({"code": "510"})
+
+
 # 确认支付担保金
 def generateGuaranty(request, money):
-    print(money)
     context = {}
     context["money"] = money
     return render(request, 'index.html', context=context)
@@ -225,7 +233,6 @@ def generateGuaranty(request, money):
 def acquireGuaranty(request):
     if request.method == "POST":
         money = json.loads(request.body)["money"]
-        print(money)
         return HttpResponse('<a>ok</a>')
     else:
         return JsonResponse({"code": "510"})
@@ -245,23 +252,24 @@ def downloadFile(request):
 def showUser(request):
     try:
         if request.method == 'GET':
-            print("进入showUser方法：---》》")
+
             token = request.META.get("HTTP_TOKEN")
             SECRECT_KEY = "orsp"
             data = jwt.decode(str(token).encode(), SECRECT_KEY, audience='webkit', algorithms=['HS256'])
             telephone = data["some"]["telephone"]
             qid = User.objects.filter(telephone=telephone).values('id')
             qid = qid[0]['id']
-            data = Info.objects.filter(id=qid).values('user_name', 'level', 'email', 'icon', 'sex','integral','one')[0]
-            data1=data # 这里必须声明一个新数组，不然是无法改变sex里面的值
-            data1["telephone"]=telephone
+            data = Info.objects.filter(id=qid).values('user_name', 'level', 'email', 'icon', 'sex', 'integral', 'one')[
+                0]
+            data1 = data  # 这里必须声明一个新数组，不然是无法改变sex里面的值
+            data1["telephone"] = telephone
             if not data["sex"]:
                 data1["sex"] = "男"
             else:
                 data1["sex"] = "女"
             if not data["email"]:
-                data1["email"]="尚未绑定邮箱"
-            print(1111, data1)
+                data1["email"] = "尚未绑定邮箱"
+
             if qid:
                 return JsonResponse(data1)
             else:
@@ -279,113 +287,114 @@ def leaveWord(request):
 def buyIntegral(request):
     pass
 
+
 # 修改个人信息
+
 def changeMsg(request):
-    print("进入了changeMsg方法")
     try:
-        if request.method=="POST":
-            data=json.loads(request.body)
-            print(data)
-            user_name=data["name"]
-            telephone=data["telephone"]
-            print(telephone)
-            user_id=User.objects.filter(telephone=telephone).values("id")[0]['id']
-            print(user_id)
-            email=data["email"]
-            if email=="尚未绑定邮箱":
-                email=None
-            level=data["level"]
-            icon=data["icon"]
-            sex=data["sex"]
-            QQ=data["QQ"]
-            integral=data["integral"]
-            if sex=="男":
-                sex=0
+        if request.method == "POST":
+            data = json.loads(request.body)
+
+            user_name = data["name"]
+            telephone = data["telephone"]
+
+            user_id = User.objects.filter(telephone=telephone).values("id")[0]['id']
+
+            email = data["email"]
+            if email == "尚未绑定邮箱":
+                email = None
+            level = data["level"]
+            icon = data["icon"]
+            sex = data["sex"]
+            QQ = data["QQ"]
+            integral = data["integral"]
+            if sex == "男":
+                sex = 0
             else:
-                sex=1
-            res=Info.objects.filter(id=user_id).update(user_name=user_name,email=email,level=level,icon=icon,sex=sex,integral=integral,one=QQ)
-            print(res) # 如果修改成功
-            return JsonResponse({"code":"修改成功"})
+                sex = 1
+            res = Info.objects.filter(id=user_id).update(user_name=user_name, email=email, level=level, icon=icon,
+                                                         sex=sex, integral=integral, one=QQ)
+            print(res)  # 如果修改成功
+            return JsonResponse({"code": "修改成功"})
         else:
-            return JsonResponse({"code":"修改失败"})
+            return JsonResponse({"code": "修改失败"})
     except Exception as e:
-        print(2222,e)
+        print(2222, e)
+
 
 # 验证密码
 def verifyPassword(request):
-    print(888888888888)
     try:
-        if request.method=="POST":
-            req=json.loads(request.body)
-            tel=req["telephone"]
-            current_password=req["current_password"]
+        if request.method == "POST":
+            req = json.loads(request.body)
+            tel = req["telephone"]
+            current_password = req["current_password"]
             print(current_password)
-            password=User.objects.filter(telephone=tel).values("password")[0]["password"]
-            res=check_password_hash(password,current_password)
+            password = User.objects.filter(telephone=tel).values("password")[0]["password"]
+            res = check_password_hash(password, current_password)
             if res:
-                return JsonResponse({"code":"255"}) # 255代表验证密码成功
+                return JsonResponse({"code": "255"})  # 255代表验证密码成功
             else:
                 return JsonResponse({"code": "455"})  # 455代表验证密码失败
         else:
-            return JsonResponse({"code":"404"})
+            return JsonResponse({"code": "404"})
     except Exception as e:
-        print("verifyPassword>>>>"+e)
+        print("verifyPassword>>>>" + e)
+
 
 # 上传头像
 def uploadUsericon(request):
     import uuid
-    print("上传头像")
-    if request.method=="POST":
+
+    if request.method == "POST":
         try:
             # 此处可以接收文件和字符串
-            f1=request.FILES["usericon"]
-            token=request.META.get("HTTP_TOKEN")
+            f1 = request.FILES["usericon"]
+            token = request.META.get("HTTP_TOKEN")
             SECRECT_KEY = "orsp"
             data = jwt.decode(str(token).encode(), SECRECT_KEY, audience='webkit', algorithms=['HS256'])
             telephone = data["some"]["telephone"]
-            userid=User.objects.filter(telephone=telephone).values("id")[0]["id"]
+            userid = User.objects.filter(telephone=telephone).values("id")[0]["id"]
             # 文件名
             filename = str(uuid.uuid4()) + '.' + f1.name.split('.')[1]
             # 设置保存的文件名
-            fname="{0}/pic/{1}".format(settings.STATICFILES_DIRS[0],filename)
-            print(fname)
-            with open(fname,'wb')as pic:
+            fname = "{0}/pic/{1}".format(settings.STATICFILES_DIRS[0], filename)
+
+            with open(fname, 'wb')as pic:
                 for c in f1.chunks():
                     pic.write(c)
-            res=Info.objects.filter(id=userid).update(icon=filename)
+            res = Info.objects.filter(id=userid).update(icon=filename)
             if res:
-                return JsonResponse({"filename":filename,"code":"218"})
+                return JsonResponse({"filename": filename, "code": "218"})
                 # return JsonResponse({"filename": fname, "code":"218"}) # 图片在后台服务器里放着
         except Exception as e:
-            print(e)
-            return JsonResponse({"code":"418"})
+
+            return JsonResponse({"code": "418"})
     else:
-        return JsonResponse({"code:":"418"})
+        return JsonResponse({"code:": "418"})
+
 
 # 获得省市二级联动
 def getCityProvince(request):
-
-    data=[]
-    province=Province.objects.all().values()
+    data = []
+    province = Province.objects.all().values()
     for i in range(len(province)):
-        print(province[i])
         data.append(province[i])
-        city=list(City.objects.filter(c_p_id=province[i]["id"]).values())
-        data[i]["city"]=city
-    print(data)
+        city = list(City.objects.filter(c_p_id=province[i]["id"]).values())
+        data[i]["city"] = city
+
     return HttpResponse(json.dumps(data))
 
 
 # 添加用户收货地址
 def addAddress(request):
-    if request.method=="POST":
-        user_id=json.loads(request.body)["user_id"]
-        connect_name=json.loads(request.body)["concact_name"]
-        concact_telephone=json.loads(request.body)["concact_telephone"]
-        city_id=json.loads(request.body)["city_id"]
-        provice_id=json.loads(request.body)["provice_id"],
-        default=json.loads(request.body)["default"],
-        print(provice_id)
+    if request.method == "POST":
+        user_id = json.loads(request.body)["user_id"]
+        connect_name = json.loads(request.body)["concact_name"]
+        concact_telephone = json.loads(request.body)["concact_telephone"]
+        city_id = json.loads(request.body)["city_id"]
+        provice_id = json.loads(request.body)["provice_id"],
+        default = json.loads(request.body)["default"],
         ins_data = {
             "user_id": user_id,
             "concact_name": connect_name,
@@ -395,16 +404,17 @@ def addAddress(request):
         }
         if default[0]:
             Address.objects.filter(user_id=user_id).update(default=0)
-            ins_data["default"]=1
+            ins_data["default"] = 1
         else:
-            ins_data["default"]=0
-        print(ins_data)
-        res=Address.objects.create(**ins_data)
-        print(res)
+            ins_data["default"] = 0
+        res = Address.objects.create(**ins_data)
+
         return JsonResponse({"code": "287"})
     else:
         # 请求失败
         return JsonResponse({"code": "510"})
+
+
 # 这里是用来插入数据的
 
 
@@ -415,20 +425,15 @@ def insertData(request):
         for i in data:
             # print(i["city"])
             for j in i["city"]:
-                print(i)
-                print(i["name"], j["name"])
                 p_id = Province.objects.get(province_name=i["name"])
                 t = {
                     "city_name": j["name"],
                     "c_p_id": p_id.id
                 }
-                print(1, t)
+
                 c = City.objects.create(**t)
-                print(2, c)
+
     return HttpResponse("成功")
-
-
-
 
 
 '''
