@@ -6,7 +6,16 @@ import re
 from werkzeug.security import generate_password_hash, check_password_hash
 from utils.token_get import *
 from orsp_django import settings
-
+import random, time, pymysql
+from .miaodi import *
+connection = pymysql.Connect(
+            host='cdb-4hg425ql.gz.tencentcdb.com',
+            port=10034,
+            user='root',
+            passwd='13866015127rbs',
+            db='dj_orsp',
+            charset='utf8'
+        )
 
 # Create your views here.
 def login(request):
@@ -407,6 +416,96 @@ def addAddress(request):
         return JsonResponse({"code": "510"})
 # 这里是用来插入数据的
 
+# 短信验证码
+def sendcode(request):
+    '''
+    :param          mobile
+    :return:        (1): code:412       手机号码输入不正确，或者已被注册
+                    (2): code:200       发送短信成功
+    '''
+
+
+    # print(now_date + 60)
+    #
+    # timeArray = time.localtime(now_date)
+    #
+    # otherStyleTime = time.strftime("%Y--%m--%d %H:%M:%S", timeArray)
+    #
+    # print(otherStyleTime)
+
+    if request.method == "POST":
+        mobile = json.loads(request.body)["phone"]
+
+
+        # if form.validate():
+        #
+
+        code=random.randrange(1000,9999)
+        code=str(code)
+        print(code)
+        smsContent='【ORSP】您的验证码为{0}，请于{1}分钟内正确输入，如非本人操作，请忽略此短信。'.format(code,5)
+        text = "您的验证码是：{}。请不要把验证码泄露给其他人。".format(code)
+        # print(11111111111)
+        print(111111111111111,text,mobile)
+        print(send_sms(text, mobile))
+        # sendIndustrySms(mobile,smsContent)
+        print(2222222222222)
+
+        # #将获取到的验证码存储到数据库中
+        now_date = time.time() + 120
+
+        cursor = connection.cursor()
+
+        sql = "DELETE from securty WHERE telephone = {0}".format(mobile)
+
+        n = cursor.execute(sql)
+
+        sql = "insert into securty() VALUE({0},{1},{2},{3})".format(mobile,code,now_date,1)
+
+        bb = cursor.execute(sql)
+
+        print(1111111)
+        return JsonResponse({'code': 200, 'message': '发送成功'})
+        # else:
+        #     message = form.errors.popitem()[1][0]                 #弹出第一条验证失败错误信息
+        #     print(type(jsonify({'code':406})))
+        #     return JsonResponse({'code':412,'message':message})
+        # response=JsonResponse({'code':200,'message':'发送成功'})
+        # response['Access-Control-Allow-Origin']='*'
+
+
+def yezheng(request):
+
+    now_dates = time.time()
+
+    mobble = json.loads(request.body)
+
+    mobbl = int(mobble['phone'])
+    yecode = int(mobble["yecode"])
+
+    print(yecode)
+    try:
+        cursor = connection.cursor()
+
+        sql = "select * from securty WHERE telephone = {0}".format(mobbl)
+
+        bb = cursor.execute(sql)
+
+        res = cursor.fetchone()
+
+
+        if (res[1] == yecode) and (float(res[2]) >= now_dates):
+
+            sql = "UPDATE securty set state = 2 WHERE telephone = {0}".format(mobbl)
+            bb = cursor.execute(sql)
+            r = {"code":200}
+        else:
+            r = {"code":403}
+
+        return JsonResponse(r)
+
+    except Exception as ex:
+        print(ex)
 
 def insertData(request):
     import json
