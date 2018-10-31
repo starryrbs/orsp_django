@@ -58,4 +58,5 @@ urlpatterns = [
     url(r'changemsg/',views.changeMsg,name='changemsg'),
     # 验证密码
     url(r'verifypassword',views.verifyPassword,name='verifypassword'),
+    url(r'deladdress',views.deladdress,name='deladdress'),
 ]

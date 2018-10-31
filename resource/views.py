@@ -165,11 +165,10 @@ def uploadGoods(request):
                     pic.write(c)
             product_type_id = None
             try:
-                product_type_id = \
-                    list(Product_type_three.objects.filter(product_type__contains=product_type).values("id"))[0]["id"]
+                product_type_id = list(Product_type_three.objects.filter(product_type__contains=product_type).values("id"))[0]["id"]
             except Exception as ex:
                 print(ex)
-                product_type_id = 1
+                product_type_id = 312
             print(1111111111, product_type_id)
 
             ins = {
