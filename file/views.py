@@ -31,21 +31,28 @@ def uploadFile(request):
 
 # 设置保存的文件名
 def saveFile(request):
-    print(json.loads(request.body))
     data = json.loads(request.body)
-    print("data", data)
-    try:
-        resourceTypeId_id = list(ResourceType.objects.filter(name=data["resourceType"]).values())[0]["id"]
-        data["resourceTypeId_id"] = resourceTypeId_id
-    except Exception as ex:
-        print(ex)
-        data["resourceTypeId_id"]=1
-    del data["resourceType"]
-    data["share_num"]=0
-    data["like_num"]=0
-    print(data)
-    res = Resource.objects.create(**data)
-    return HttpResponse("ok")
+    # try:
+    #     resourceTypeId_id = list(ResourceType.objects.filter(name=data["name"]).values())[0]["id"]
+    #     data["resourceTypeId_id"] = resourceTypeId_id
+    #     resourceTypeId_id = list(ResourceType.objects.filter(name=data["resourceType"]).values())[0]["id"]
+    #     data["resourceTypeId_id"] = resourceTypeId_id
+    # except Exception as ex:
+    #     print(ex)
+    #     data["resourceTypeId_id"]=1
+    # del data["resourceType"]
+    data["share_num"] = 0
+    data["like_num"] = 0
+    # print(data)
+    res=Resource.objects.filter(title=data["title"]).values()
+    if res:
+        return HttpResponse("已成功上传")
+    else:
+        integral = Info.objects.filter(id=data["upload_user_id"]).values("integral")[0]["integral"]
+        new_integral = int(integral) + 1
+        Info.objects.filter(id=data["upload_user_id"]).update(integral=new_integral)
+        Resource.objects.create(**data)
+        return HttpResponse("上传成功,获得1积分")
 
 
 # 判断是否允许下载文件
@@ -140,7 +147,7 @@ def cancelfile(request):
 def showfile(request):
     if request.method == "GET":
         resource_id = request.GET.get("id")
-        res = Resource.objects.filter(id=resource_id).values("name", "download_count", "upload_user", "describe")
+        res = Resource.objects.filter(id=resource_id).values("name", "download_count", "upload_user", "describe","title")
         res = list(res)
         filename = res[0]["name"]
         download_count = res[0]["download_count"]
@@ -170,7 +177,7 @@ def showDownloadFile(request):
             print(fileid)
             uu=[]
             for i in range(len(fileid)):
-                mes=Resource.objects.filter(id=fileid[i]["file"]).values("describe","upload_time","need_integral","upload_user","like_num","share_num","id")[0]
+                mes=Resource.objects.filter(id=fileid[i]["file"]).values("title","describe","upload_time","need_integral","upload_user","like_num","share_num","id")[0]
                 collectcount = Collect.objects.filter(resource=fileid[i]["file"]).count()
                 print(collectcount,22222)
                 mes["collectcount"]=collectcount
@@ -192,13 +199,69 @@ def showDownloadFile(request):
         return JsonResponse({"code":"404"})
 
 
+# 查看我发布的资源 (另一个注意别删)
+def getMyUploadFile(request):
+    if request.method=="POST":
+        try:
+            userid=json.loads(request.body)["userid"]
+            print(userid)
+            uploadcount = Resource.objects.filter(upload_user=userid).count()  # 我上传文件的次数
+            downloadcount = Download.objects.filter(user=userid).count()  # 我下载文件的次数
+            fileid=list(Resource.objects.filter(upload_user_id=userid).values())  # 我上传的文件
+            print(fileid)
+            uu=[]
+            for i in range(len(fileid)):
+                collectcount = Collect.objects.filter(resource_id=fileid[i]["id"]).count()
+                fileid[i]["collectcount"]=collectcount
+                upload_time=fileid[i]["upload_time"].strftime("%Y-%m-%d %H:%M:%S")
+                fileid[i]["upload_time"]=upload_time
+                upload_user_name=Info.objects.filter(id=fileid[i]["upload_user_id"]).values("user_name")[0]["user_name"]  # 被下载文件的上传者
+                fileid[i]["upload_user_name"]=upload_user_name
+                uu.append(fileid[i])
+            cc={
+                "uploadcount":uploadcount,
+                "downloadcount":downloadcount
+            }
+            uu.append(cc)
+            return HttpResponse(json.dumps(uu,ensure_ascii=False))
+        except Exception as e:
+            print(e)
+    else:
+        return JsonResponse({"code":"404"})
 
-# 查看文件信息(包括文件名,被下载次数,上传人,评论信息)
+
+
+# 已收藏文件
+def showCollectFile(request,id):
+    if request.method=="GET":
+        list_file=Collect.objects.filter(user_id=id).values("resource_id")
+        uploadcount = Resource.objects.filter(upload_user=id).count()  # 我上传文件的次数
+        downloadcount = Download.objects.filter(user=id).count()  # 我下载文件的次数
+        file=[]
+        for i in list_file:
+            print("i",i)
+            collectcount = Collect.objects.filter(resource=i["resource_id"]).count()
+            uu=Resource.objects.filter(id=i["resource_id"]).values()[0]
+            uu["upload_time"]=uu["upload_time"].strftime("%Y-%m-%d %H:%M:%S")
+            upload_user_name=Info.objects.filter(id=uu["upload_user_id"]).values("user_name")[0]["user_name"]
+            uu["upload_user_name"]=upload_user_name
+            uu["collectcount"] = collectcount
+            file.append(uu)
+        cc = {
+            "uploadcount": uploadcount,
+            "downloadcount": downloadcount
+        }
+        file.append(cc)
+        print(file)
+        return HttpResponse(json.dumps(file,ensure_ascii=False))
+
+
+# 查看我的文件信息(包括文件名,被下载次数,上传人,评论信息)
 def showmyupfile(request):
     try:
         if request.method == 'GET':
             qid = request.GET.get('id')
-            qid = Resource.objects.filter(upload_user_id=qid).values('id', 'name', 'download_count', 'upload_time','need_integral', 'describe')
+            qid = Resource.objects.filter(upload_user_id=qid).values('id', 'name', 'download_count', 'upload_time','need_integral','title','describe')
             if qid:
                 for i in qid:
                     i['upload_time'] = str(i['upload_time'])
@@ -271,7 +334,6 @@ def addCollect(request):
         return JsonResponse({"code": "404"})
 
 
-
 # 取消收藏
 def cancelCollect(request):
     if request.method == "POST":
@@ -339,18 +401,74 @@ def showAllFile(request):
     res=formDatatime(res)
     print(res)
     for i in range(len(res)):
-        print(i)
-        print(res[i])
-        print(res[i]["upload_user_id"])
         res[i]["upload_user"]=list(Info.objects.filter(id=res[i]["upload_user_id"]).values())[0]["user_name"]
-    print(res)
+        res[i]["collectcount"] = Collect.objects.filter(resource=res[i]["id"]).count()
+    print(666666666,res)
     return HttpResponse(json.dumps(res))
 
+# 通过二级路由查所有文件
+def showFileByCondition(request):
+    if request.method=="POST":
+        print(1111111111111111111)
+        twofieldid=json.loads(request.body)["twofieldid"]
+        # print(condition)
+        # txtcondition=condition["txtcondition"]
+        # print("txtcondition",txtcondition)
+        # twofieldid=condition["twofieldid"]
+        # print("twofieldid",twofieldid)
+        # resoursetypeid=condition["resoursetypeid"]
+        # print("resoursetypeid",resoursetypeid)
+        # twoTechnicalFieldId=json.loads(request.body)["twoFieldId"]
+        # file=None
+        # if txtcondition and not twofieldid and not resoursetypeid:
+        #     file = list(Resource.objects.filter(title__icontains=txtcondition).values())
+        #
+        #
+        # elif txtcondition and twofieldid and not resoursetypeid:
+        #     file_1 = list(Resource.objects.filter(title__icontains=txtcondition).values())
+        #     file=[]
+        #     for i in range(len(file_1)):
+        #         if file_1[i]["twoTechnicalFieldId_id"]==twofieldid:
+        #             file.append(file_1[i])
+        #
+        #
+        # elif txtcondition and not twofieldid and resoursetypeid:
+        #     file_1 = list(Resource.objects.filter(title__icontains=txtcondition).values())
+        #     file=[]
+        #     for i in range(len(file_1)):
+        #         if file_1[i]["resourceTypeId_id"]==twofieldid:
+        #             file.append(file_1[i])
+        #
+        #
+        # elif txtcondition and twofieldid and resoursetypeid:
+        #     file_1 = list(Resource.objects.filter(title__icontains=txtcondition).values())
+        #     file = []
+        #     for i in range(len(file_1)):
+        #         if file_1[i]["twoTechnicalFieldId_id"] == twofieldid and file_1[i]["resourceTypeId_id"]==resoursetypeid:
+        #             file.append(file_1[i])
+        #
+        #
+        #
+        # # not txtcondition and not resoursetypeid and twofieldid
+        # else:
+        #     # Resource.objects.filter(twoTechnicalFieldId_id=twofieldid).values()
+        #     file=list(Resource.objects.filter(twoTechnicalFieldId_id=twofieldid).values())
+        file = list(Resource.objects.filter(twoTechnicalFieldId_id=twofieldid).values())
+        file = formDatatime(file)
+        for i in range(len(file)):
+            file[i]["user_name"]=Info.objects.filter(id=file[i]["upload_user_id"]).values()[0]["user_name"]
+        print(1,file)
+        return HttpResponse(json.dumps(file))
+
+
+
+# 一级技术领域
 def getTechnicalField(request):
     data=list(TechnicalField.objects.all().values())
     print(data)
     return HttpResponse(json.dumps(data))
 
+# 二级技术领域
 def getTwoTechnicalField(request):
     technicalFieldId=request.GET.get("id")
     data=list(TwoTechnicalField.objects.filter(technicalFieldId=technicalFieldId).values())
@@ -358,7 +476,27 @@ def getTwoTechnicalField(request):
     print(data)
     return HttpResponse(json.dumps(data))
 
+
+# 资源类型
 def getResourceType(request):
     data=list(ResourceType.objects.all().values())
     print(data)
     return HttpResponse(json.dumps(data))
+
+
+# 获得技术领域二级联动
+def getAllTechnicalField(request):
+    data=[]
+    technicalField=list(TechnicalField.objects.all().values())
+    for i in range(len(technicalField)):
+        # print("技术领域一级标签",technicalField[i]["id"])
+        data.append(technicalField[i])
+        twoTechnicalField=list(TwoTechnicalField.objects.filter(technicalFieldId=technicalField[i]["id"]).values())
+        data[i]["twoTechnicalField"]=twoTechnicalField
+    # print(data)
+    return HttpResponse(json.dumps(data))
+
+
+
+
+

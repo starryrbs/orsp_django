@@ -20,13 +20,13 @@ from django.conf.urls import include
 from . import views
 app_name="file"
 urlpatterns = [
-    url(r'^whetherdownload/', views.whetherdownload, name="whetherdownload"),
     # 这里是上传文件已经成功,存储文件信息与用户信息 我的上传
     url(r'^uploadfile/',views.uploadFile,name="uploadfile"),
     # 保存文件的信息
     url(r'^savefile/',views.saveFile,name="uploadfile"),
     # # 下载文件
     url(r'^downloadfile/',views.downloadfile,name="downloadfile"),
+    # 判断是否允许下载文件
     url(r'^checkdownloadfile/',views.checkdownloadfile,name="checkdownloadfile"),
     # 取消上传的文件
     url(r'^cancelfile/',views.cancelfile,name="cancelfile"),
@@ -35,6 +35,7 @@ urlpatterns = [
     # 查看已下载文件
     url(r'^showdownloadfile/', views.showDownloadFile, name="showdownloadfile"),
     # 判断是否已下载
+    url(r'^whetherdownload/', views.whetherdownload, name="whetherdownload"),
     # 查看上传文件
     url(r'^showmyupfile',views.showmyupfile,name="showmyupfile"),
     # 评论资源功能
@@ -45,18 +46,26 @@ urlpatterns = [
     url(r'^cancelcollect/',views.cancelCollect,name="cancelcollect"),
     # 收藏人数
     url(r'^collectnumber/',views.collectnumber,name="collectnumber"),
+    # 已收藏文件
+    url(r'^showcollectfile/(?P<id>\d*)/',views.showCollectFile,name="showcollectfile"),
+    # 我发布的文件
+    url(r'^getmyuploadfile/',views.getMyUploadFile,name="getMyUploadFile"),
     # 检测文件重复(根据标题)
     url(r'^detectionrepetition/',views.detectionRepetition,name="detectionrepetition"),
     # 删除上传文件
     url(r'^delmyupfile/',views.delmyupfile,name="delmyupfile"),
     # 查看所有用户上传的文件
     url(r'^showallfile/', views.showAllFile, name="showallfile"),
+    # 查看所有用户上传的文件bytwoField
+    url(r'^showfilebycondition/', views.showFileByCondition, name="showfilebycondition"),
     # 拿到技术领域一级类型
     url(r'^gettechnicalfield/', views.getTechnicalField, name="gettechnicalfield"),
     # 拿到技术领域一级类型
     url(r'^gettwotechnicalfield/', views.getTwoTechnicalField, name="gettwotechnicalfield"),
     # 拿到资源类型
     url(r'^getresourcetype/', views.getResourceType, name="getresourcetype"),
+    # 技术领域二级联动
+    url(r'^getalltechnicalfield/', views.getAllTechnicalField, name="getalltechnicalfield"),
 ]
 '''
 

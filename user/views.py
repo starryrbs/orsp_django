@@ -373,7 +373,6 @@ def uploadUsericon(request):
 
 # 获得省市二级联动
 def getCityProvince(request):
-
     data=[]
     province=Province.objects.all().values()
     for i in range(len(province)):

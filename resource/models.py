@@ -32,6 +32,7 @@ class Products(models.Model):
     user = models.ForeignKey(to=Info, to_field='id', on_delete=models.CASCADE, default=1)
     upload_time = models.DateTimeField(null=True, auto_now_add=True)
     product_type = models.ForeignKey(to_field='id', to=Product_type_three, on_delete=models.CASCADE, default=1)
+    status=models.CharField(max_length=2,default=0)
     # 用户收藏
     # collects=models.ManyToManyField(Info)
 
