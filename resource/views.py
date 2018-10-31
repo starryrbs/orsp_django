@@ -122,7 +122,7 @@ def seeMyCollect(request):
                 collect_good = list(Products.objects.filter(id=res[i]["collect_resource_id"]).values())[0]
                 res[i]["name"] = collect_good["name"]
                 print("collect_good", collect_good)
-                res[i]["img_src"] = 'http://127.0.0.1:8000/media/pic/' + collect_good["imgurl"]
+                res[i]["img_src"] = '/media/pic/' + collect_good["imgurl"]
 
             for i in range(len(res_mon)):
                 collect_good = list(db.taobao_goods.find({"_id": ObjectId(str(res_mon[i]["collect_resource_id"]))}))[0]
@@ -258,7 +258,7 @@ def searchGoods(request):
     for i in res:
         i["Stock"] = i["category"]
         i["payNum"] = i["pnum"]
-        i["img_href"] = 'http://127.0.0.1:8000/media/pic/' + str(i["imgurl"])
+        i["img_href"] = '/media/pic/' + str(i["imgurl"])
         i["sales_num"] = str(i["pnum"]) + '人付款'
         product_type = list(Product_type_three.objects.filter(id=i["product_type_id"]).values())[0]
         i["belong_name"] = product_type["product_type"]
