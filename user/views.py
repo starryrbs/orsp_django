@@ -202,6 +202,7 @@ def changeaddress(request):
         # Address.objects.filter(user_id=getdata['id']).update(default='0')
         Address.objects.filter(user_id=getdata['userid']).update(default='0')
         Address.objects.filter(id=getdata['id']).update(default='1')
+        return JsonResponse({"code": "215"})
     else:
         return JsonResponse({"code": "510"})
 

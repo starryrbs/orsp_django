@@ -258,7 +258,7 @@ def searchGoods(request):
     for i in res:
         i["Stock"] = i["category"]
         i["payNum"] = i["pnum"]
-        i["img_href"] = '/media/pic/' + str(i["imgurl"])
+        i["img_href"] = 'http://118.25.122.193:8000/media/pic/' + str(i["imgurl"])
         i["sales_num"] = str(i["pnum"]) + '人付款'
         product_type = list(Product_type_three.objects.filter(id=i["product_type_id"]).values())[0]
         i["belong_name"] = product_type["product_type"]
