@@ -144,6 +144,7 @@ CORS_ORIGIN_WHITELIST = (
       'localhost:8080',
     # '0.0.0.0/0'
 )
+
 CORS_ALLOW_METHODS = (
 'GET',
 'POST',
