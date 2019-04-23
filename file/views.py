@@ -9,6 +9,7 @@ from django.http import FileResponse
 from utils.formatDatatime import *
 import jwt
 
+
 # Create your views here.
 def uploadFile(request):
     # 此处可以接收文件和字符串
@@ -29,8 +30,6 @@ def uploadFile(request):
     })
 
 
-
-
 # 设置保存的文件名
 def saveFile(request):
     data = json.loads(request.body)
@@ -45,14 +44,14 @@ def saveFile(request):
     # del data["resourceType"]
     data["share_num"] = 0
     data["like_num"] = 0
-    # print(data)
-    res=Resource.objects.filter(title=data["title"]).values()
+    res = Resource.objects.filter(title=data["title"]).values()
     if res:
         return HttpResponse("已成功上传")
     else:
         integral = Info.objects.filter(id=data["upload_user_id"]).values("integral")[0]["integral"]
         new_integral = int(integral) + 1
         Info.objects.filter(id=data["upload_user_id"]).update(integral=new_integral)
+        print(data)
         Resource.objects.create(**data)
         return HttpResponse("上传成功,获得1积分")
 
@@ -79,15 +78,16 @@ def whetherdownload(request):
         print(filename)
         if filename['fname']:
             print(filename['fname'])
-            file=Resource.objects.filter(name=filename["fname"]).values("id","need_integral")[0]
-            userid=filename["userid"]
-            res=Download.objects.filter(user=userid,file=file["id"])
+            file = Resource.objects.filter(name=filename["fname"]).values("id", "need_integral")[0]
+            userid = filename["userid"]
+            res = Download.objects.filter(user=userid, file=file["id"])
             if res:
-                return JsonResponse({"code":"220"}) # 已下载
+                return JsonResponse({"code": "220"})  # 已下载
             else:
-                return JsonResponse({"code":"420"})
+                return JsonResponse({"code": "420"})
     else:
-        return JsonResponse({"code":"404"})
+        return JsonResponse({"code": "404"})
+
 
 # 下载文件
 def downloadfile(request):
@@ -96,26 +96,26 @@ def downloadfile(request):
         print(filename)
         if filename['fname']:
             print(filename['fname'])
-            file=Resource.objects.filter(name=filename["fname"]).values("id","need_integral")[0]
+            file = Resource.objects.filter(name=filename["fname"]).values("id", "need_integral")[0]
             # file_id=file["id"]
             # print(11111,file_id)
-            need_integral=file["need_integral"]
+            need_integral = file["need_integral"]
             # media / pic
             filepath = ('media/pic/{0}'.format(filename['fname']))
             response = FileResponse(readFile(filepath))
             response['Content-Type'] = 'application/octet-stream'
             response['Content-Disposition'] = 'attachment;filename="{0}"'.format(filename['fname'])
-            userid=filename["userid"]
-            res=Download.objects.filter(user=userid,file=file["id"])
+            userid = filename["userid"]
+            res = Download.objects.filter(user=userid, file=file["id"])
             # 没有该下载记录
             if not res:
-                integral=Info.objects.filter(id=userid).values("integral")[0]["integral"]
-                new_integral=int(integral)-int(need_integral)
+                integral = Info.objects.filter(id=userid).values("integral")[0]["integral"]
+                new_integral = int(integral) - int(need_integral)
                 print(new_integral)
-                Info.objects.filter(id=userid).update(integral=new_integral) # 扣掉积分
-                dd={
-                    "file_id":file["id"],
-                    "user_id":filename["userid"]
+                Info.objects.filter(id=userid).update(integral=new_integral)  # 扣掉积分
+                dd = {
+                    "file_id": file["id"],
+                    "user_id": filename["userid"]
                 }
                 Download.objects.create(**dd)
                 # Download.objects# 保存下载记录，以后下载不要钱
@@ -140,6 +140,8 @@ def readFile(filename, chunk_size=512):
                 yield c
             else:
                 break
+
+
 # 取消上传的文件
 def cancelfile(request):
     pass
@@ -149,7 +151,8 @@ def cancelfile(request):
 def showfile(request):
     if request.method == "GET":
         resource_id = request.GET.get("id")
-        res = Resource.objects.filter(id=resource_id).values("name", "download_count", "upload_user", "describe","title")
+        res = Resource.objects.filter(id=resource_id).values("name", "download_count", "upload_user", "describe",
+                                                             "title")
         res = list(res)
         filename = res[0]["name"]
         download_count = res[0]["download_count"]
@@ -167,86 +170,90 @@ def showfile(request):
     else:
         return JsonResponse({"code": "404"})
 
+
 # 查看已下载的文件
 def showDownloadFile(request):
-    if request.method=="POST":
+    if request.method == "POST":
         try:
-            userid=json.loads(request.body)["userid"]
+            userid = json.loads(request.body)["userid"]
             print(userid)
             uploadcount = Resource.objects.filter(upload_user=userid).count()  # 我上传文件的次数
             downloadcount = Download.objects.filter(user=userid).count()  # 我下载文件的次数
-            fileid=list(Download.objects.filter(user=userid).values("file"))  # 我下载的文件id
+            fileid = list(Download.objects.filter(user=userid).values("file"))  # 我下载的文件id
             print(fileid)
-            uu=[]
+            uu = []
             for i in range(len(fileid)):
-                mes=Resource.objects.filter(id=fileid[i]["file"]).values("title","describe","upload_time","need_integral","upload_user","like_num","share_num","id")[0]
+                mes = Resource.objects.filter(id=fileid[i]["file"]).values("title", "describe", "upload_time",
+                                                                           "need_integral", "upload_user", "like_num",
+                                                                           "share_num", "id")[0]
                 collectcount = Collect.objects.filter(resource=fileid[i]["file"]).count()
-                print(collectcount,22222)
-                mes["collectcount"]=collectcount
-                upload_time=mes["upload_time"].strftime("%Y-%m-%d %H:%M:%S")
-                mes["upload_time"]=upload_time
-                upload_user_name=Info.objects.filter(id=mes["upload_user"]).values("user_name")[0]["user_name"]  # 被下载文件的上传者
-                mes["upload_user_name"]=upload_user_name
+                print(collectcount, 22222)
+                mes["collectcount"] = collectcount
+                upload_time = mes["upload_time"].strftime("%Y-%m-%d %H:%M:%S")
+                mes["upload_time"] = upload_time
+                upload_user_name = Info.objects.filter(id=mes["upload_user"]).values("user_name")[0][
+                    "user_name"]  # 被下载文件的上传者
+                mes["upload_user_name"] = upload_user_name
                 uu.append(mes)
             print(uu)
-            cc={
-                "uploadcount":uploadcount,
-                "downloadcount":downloadcount
+            cc = {
+                "uploadcount": uploadcount,
+                "downloadcount": downloadcount
             }
             uu.append(cc)
-            return HttpResponse(json.dumps(uu,ensure_ascii=False))
+            return HttpResponse(json.dumps(uu, ensure_ascii=False))
         except Exception as e:
             print(e)
     else:
-        return JsonResponse({"code":"404"})
+        return JsonResponse({"code": "404"})
 
 
 # 查看我发布的资源 (另一个注意别删)
 def getMyUploadFile(request):
-    if request.method=="POST":
+    if request.method == "POST":
         try:
-            userid=json.loads(request.body)["userid"]
+            userid = json.loads(request.body)["userid"]
             print(userid)
             uploadcount = Resource.objects.filter(upload_user=userid).count()  # 我上传文件的次数
             downloadcount = Download.objects.filter(user=userid).count()  # 我下载文件的次数
-            fileid=list(Resource.objects.filter(upload_user_id=userid).values())  # 我上传的文件
+            fileid = list(Resource.objects.filter(upload_user_id=userid).values())  # 我上传的文件
             print(fileid)
-            uu=[]
+            uu = []
             for i in range(len(fileid)):
                 collectcount = Collect.objects.filter(resource_id=fileid[i]["id"]).count()
-                fileid[i]["collectcount"]=collectcount
-                upload_time=fileid[i]["upload_time"].strftime("%Y-%m-%d %H:%M:%S")
-                fileid[i]["upload_time"]=upload_time
-                upload_user_name=Info.objects.filter(id=fileid[i]["upload_user_id"]).values("user_name")[0]["user_name"]  # 被下载文件的上传者
-                fileid[i]["upload_user_name"]=upload_user_name
+                fileid[i]["collectcount"] = collectcount
+                upload_time = fileid[i]["upload_time"].strftime("%Y-%m-%d %H:%M:%S")
+                fileid[i]["upload_time"] = upload_time
+                upload_user_name = Info.objects.filter(id=fileid[i]["upload_user_id"]).values("user_name")[0][
+                    "user_name"]  # 被下载文件的上传者
+                fileid[i]["upload_user_name"] = upload_user_name
                 uu.append(fileid[i])
-            cc={
-                "uploadcount":uploadcount,
-                "downloadcount":downloadcount
+            cc = {
+                "uploadcount": uploadcount,
+                "downloadcount": downloadcount
             }
             uu.append(cc)
-            return HttpResponse(json.dumps(uu,ensure_ascii=False))
+            return HttpResponse(json.dumps(uu, ensure_ascii=False))
         except Exception as e:
             print(e)
     else:
-        return JsonResponse({"code":"404"})
-
+        return JsonResponse({"code": "404"})
 
 
 # 已收藏文件
-def showCollectFile(request,id):
-    if request.method=="GET":
-        list_file=Collect.objects.filter(user_id=id).values("resource_id")
+def showCollectFile(request, id):
+    if request.method == "GET":
+        list_file = Collect.objects.filter(user_id=id).values("resource_id")
         uploadcount = Resource.objects.filter(upload_user=id).count()  # 我上传文件的次数
         downloadcount = Download.objects.filter(user=id).count()  # 我下载文件的次数
-        file=[]
+        file = []
         for i in list_file:
-            print("i",i)
+            print("i", i)
             collectcount = Collect.objects.filter(resource=i["resource_id"]).count()
-            uu=Resource.objects.filter(id=i["resource_id"]).values()[0]
-            uu["upload_time"]=uu["upload_time"].strftime("%Y-%m-%d %H:%M:%S")
-            upload_user_name=Info.objects.filter(id=uu["upload_user_id"]).values("user_name")[0]["user_name"]
-            uu["upload_user_name"]=upload_user_name
+            uu = Resource.objects.filter(id=i["resource_id"]).values()[0]
+            uu["upload_time"] = uu["upload_time"].strftime("%Y-%m-%d %H:%M:%S")
+            upload_user_name = Info.objects.filter(id=uu["upload_user_id"]).values("user_name")[0]["user_name"]
+            uu["upload_user_name"] = upload_user_name
             uu["collectcount"] = collectcount
             file.append(uu)
         cc = {
@@ -255,7 +262,7 @@ def showCollectFile(request,id):
         }
         file.append(cc)
         print(file)
-        return HttpResponse(json.dumps(file,ensure_ascii=False))
+        return HttpResponse(json.dumps(file, ensure_ascii=False))
 
 
 # 查看我的文件信息(包括文件名,被下载次数,上传人,评论信息)
@@ -263,7 +270,8 @@ def showmyupfile(request):
     try:
         if request.method == 'GET':
             qid = request.GET.get('id')
-            qid = Resource.objects.filter(upload_user_id=qid).values('id', 'name', 'download_count', 'upload_time','need_integral','title','describe')
+            qid = Resource.objects.filter(upload_user_id=qid).values('id', 'name', 'download_count', 'upload_time',
+                                                                     'need_integral', 'title', 'describe')
             if qid:
                 for i in qid:
                     i['upload_time'] = str(i['upload_time'])
@@ -292,6 +300,7 @@ def delmyupfile(request):
 def commentFile(request):
     pass
 
+
 # 查看文件信息(包括文件名,被下载次数,上传人,评论信息) 传过来一个资源id
 def showfile(request):
     if request.method == "GET":
@@ -318,7 +327,7 @@ def showfile(request):
 # 添加收藏 传过来用户的telephone和要收藏资源的id
 def addCollect(request):
     if request.method == "POST":
-        res=json.loads(request.body)
+        res = json.loads(request.body)
         resource_id = res["id"]  # 被收藏资源的id
         userid = res["userid"]  # 收藏人id
         data = {
@@ -326,7 +335,7 @@ def addCollect(request):
             "resource_id": resource_id
         }
         print(data)
-        res = Collect.objects.filter(user_id=userid,resource_id=resource_id)
+        res = Collect.objects.filter(user_id=userid, resource_id=resource_id)
         if not res:
             Collect.objects.create(**data)  # 向Collect用户收藏表添加数据
             return JsonResponse({"code": "209"})  # 收藏成功
@@ -348,7 +357,7 @@ def cancelCollect(request):
         res = Collect.objects.filter(user_id=userid)
         print(data)
         if res:
-            Collect.objects.filter(user_id=userid,resource_id=resource_id).delete()
+            Collect.objects.filter(user_id=userid, resource_id=resource_id).delete()
             return JsonResponse({"code": "222"})  # 取消收藏成功
         else:
             return HttpResponse("还没有收藏呢")
@@ -360,15 +369,15 @@ def cancelCollect(request):
 def collectnumber(request):
     if request.method == "POST":
         try:
-            id=json.loads(request.body)["id"]
-            print(id,88)
-            collectcount=Collect.objects.filter(resource=id).count()
-            print(collectcount,888)
+            id = json.loads(request.body)["id"]
+            print(id, 88)
+            collectcount = Collect.objects.filter(resource=id).count()
+            print(collectcount, 888)
             return HttpResponse(str(collectcount))
         except Exception as e:
             print(e)
     else:
-        return JsonResponse({"code":"404"})
+        return JsonResponse({"code": "404"})
 
 
 # 检测文件重复(根据标题) 传过来一个title
@@ -398,21 +407,22 @@ def like(request):
 
 # 查看所有用户上传的文件
 def showAllFile(request):
-    res=list(Resource.objects.all().values())
+    res = list(Resource.objects.all().values())
     print(res)
-    res=formDatatime(res)
+    res = formDatatime(res)
     print(res)
     for i in range(len(res)):
-        res[i]["upload_user"]=list(Info.objects.filter(id=res[i]["upload_user_id"]).values())[0]["user_name"]
+        res[i]["upload_user"] = list(Info.objects.filter(id=res[i]["upload_user_id"]).values())[0]["user_name"]
         res[i]["collectcount"] = Collect.objects.filter(resource=res[i]["id"]).count()
-    print(666666666,res)
+    print(666666666, res)
     return HttpResponse(json.dumps(res))
+
 
 # 通过二级路由查所有文件
 def showFileByCondition(request):
-    if request.method=="POST":
+    if request.method == "POST":
         print(1111111111111111111)
-        twofieldid=json.loads(request.body)["twofieldid"]
+        twofieldid = json.loads(request.body)["twofieldid"]
         # print(condition)
         # txtcondition=condition["txtcondition"]
         # print("txtcondition",txtcondition)
@@ -458,22 +468,22 @@ def showFileByCondition(request):
         file = list(Resource.objects.filter(twoTechnicalFieldId_id=twofieldid).values())
         file = formDatatime(file)
         for i in range(len(file)):
-            file[i]["user_name"]=Info.objects.filter(id=file[i]["upload_user_id"]).values()[0]["user_name"]
-        print(1,file)
+            file[i]["user_name"] = Info.objects.filter(id=file[i]["upload_user_id"]).values()[0]["user_name"]
+        print(1, file)
         return HttpResponse(json.dumps(file))
-
 
 
 # 一级技术领域
 def getTechnicalField(request):
-    data=list(TechnicalField.objects.all().values())
+    data = list(TechnicalField.objects.all().values())
     print(data)
     return HttpResponse(json.dumps(data))
 
+
 # 二级技术领域
 def getTwoTechnicalField(request):
-    technicalFieldId=request.GET.get("id")
-    data=list(TwoTechnicalField.objects.filter(technicalFieldId=technicalFieldId).values())
+    technicalFieldId = request.GET.get("id")
+    data = list(TwoTechnicalField.objects.filter(technicalFieldId=technicalFieldId).values())
     # data=list(TwoTechnicalField.objects.all().values())
     print(data)
     return HttpResponse(json.dumps(data))
@@ -481,24 +491,19 @@ def getTwoTechnicalField(request):
 
 # 资源类型
 def getResourceType(request):
-    data=list(ResourceType.objects.all().values())
+    data = list(ResourceType.objects.all().values())
     print(data)
     return HttpResponse(json.dumps(data))
 
 
 # 获得技术领域二级联动
 def getAllTechnicalField(request):
-    data=[]
-    technicalField=list(TechnicalField.objects.all().values())
+    data = []
+    technicalField = list(TechnicalField.objects.all().values())
     for i in range(len(technicalField)):
         # print("技术领域一级标签",technicalField[i]["id"])
         data.append(technicalField[i])
-        twoTechnicalField=list(TwoTechnicalField.objects.filter(technicalFieldId=technicalField[i]["id"]).values())
-        data[i]["twoTechnicalField"]=twoTechnicalField
+        twoTechnicalField = list(TwoTechnicalField.objects.filter(technicalFieldId=technicalField[i]["id"]).values())
+        data[i]["twoTechnicalField"] = twoTechnicalField
     # print(data)
     return HttpResponse(json.dumps(data))
-
-
-
-
-

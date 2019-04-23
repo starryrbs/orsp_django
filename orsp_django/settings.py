@@ -15,7 +15,6 @@ import os
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
-
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/2.1/howto/deployment/checklist/
 
@@ -26,7 +25,6 @@ SECRET_KEY = '$kjho3$-(6nc6aeq41*i3qd9ja%+v96woqje0v8s)ew0j1*lsc'
 DEBUG = True
 
 ALLOWED_HOSTS = []
-
 
 # Application definition
 
@@ -75,22 +73,19 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'orsp_django.wsgi.application'
 
-
 # Database
 # https://docs.djangoproject.com/en/2.1/ref/settings/#databases
 
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        # 'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
         'NAME': 'dj_orsp',
         'USER': 'root',
-        'PASSWORD': '13866015127rbs',
-        'HOST': 'cdb-4hg425ql.gz.tencentcdb.com',
-        'PORT': '10034',
+        'PASSWORD': '',
+        'HOST': '127.0.0.1',
+        'PORT': '3306',
     }
 }
-
 
 # Password validation
 # https://docs.djangoproject.com/en/2.1/ref/settings/#auth-password-validators
@@ -110,7 +105,6 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-
 # Internationalization
 # https://docs.djangoproject.com/en/2.1/topics/i18n/
 
@@ -124,7 +118,6 @@ USE_L10N = True
 
 USE_TZ = True
 
-
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/2.1/howto/static-files/
 
@@ -137,21 +130,21 @@ STATICFILES_DIRS = (
     os.path.join(BASE_DIR, "media"),
 )
 # 跨域设置
-CORS_ORIGIN_ALLOW_ALL = False
+CORS_ORIGIN_ALLOW_ALL = True
 CORS_ORIGIN_WHITELIST = (
-      'localhost:63343',
-      'localhost:63342',
-      'localhost:8080',
-    # '0.0.0.0/0'
+    # 'localhost:63343',
+    # 'localhost:63342',
+    # 'localhost:8080',
+    '0.0.0.0/0'
 )
 
 CORS_ALLOW_METHODS = (
-'GET',
-'POST',
-'PUT',
-'PATCH',
-'DELETE',
-'OPTIONS'
+    'GET',
+    'POST',
+    'PUT',
+    'PATCH',
+    'DELETE',
+    'OPTIONS'
 )
 CORS_ALLOW_HEADERS = (
     'x-requested-with',
@@ -163,6 +156,5 @@ CORS_ALLOW_HEADERS = (
     'token',
     'Access-Control-Allow-Origin'
 )
-
 
 USE_TZ = False

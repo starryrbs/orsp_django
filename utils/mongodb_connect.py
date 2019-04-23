@@ -2,9 +2,9 @@
 import datetime
 import time
 from pymongo import MongoClient
-conn = MongoClient('123.207.11.101', 27017)
+conn = MongoClient('127.0.0.1', 27017)
 db = conn.orsp  # 连接mydb数据库，没有则自动创建
-db.authenticate('orsp','123456')
+# db.authenticate('orsp','123456')
 from bson import ObjectId
 # res=list(db.order.update({"_id":ObjectId("5bcd6912923ce015f8e938c9")},{'$set':{"sellerSelectGood.status":1}}))
 # print(res)

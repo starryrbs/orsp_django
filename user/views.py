@@ -9,10 +9,10 @@ from orsp_django import settings
 import random, time, pymysql
 from .miaodi import *
 connection = pymysql.Connect(
-            host='cdb-4hg425ql.gz.tencentcdb.com',
-            port=10034,
+            host='127.0.0.1',
+            port=3306,
             user='root',
-            passwd='13866015127rbs',
+            passwd='',
             db='dj_orsp',
             charset='utf8'
         )
@@ -357,7 +357,7 @@ def uploadUsericon(request):
     import uuid
 
     if request.method == "POST":
-        try:
+        # try:
             # 此处可以接收文件和字符串
             f1 = request.FILES["usericon"]
             token = request.META.get("HTTP_TOKEN")
@@ -377,9 +377,9 @@ def uploadUsericon(request):
             if res:
                 return JsonResponse({"filename": filename, "code": "218"})
                 # return JsonResponse({"filename": fname, "code":"218"}) # 图片在后台服务器里放着
-        except Exception as e:
-
-            return JsonResponse({"code": "418"})
+        # except Exception as e:
+        #
+        #     return JsonResponse({"code": "418"})
     else:
         return JsonResponse({"code:": "418"})
 

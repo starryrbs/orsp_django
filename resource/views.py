@@ -165,10 +165,11 @@ def uploadGoods(request):
                     pic.write(c)
             product_type_id = None
             try:
-                product_type_id = list(Product_type_three.objects.filter(product_type__contains=product_type).values("id"))[0]["id"]
+                product_type_id = \
+                list(Product_type_three.objects.filter(product_type__contains=product_type).values("id"))[0]["id"]
             except Exception as ex:
                 print(ex)
-                product_type_id = 312
+                product_type_id = 229
             print(1111111111, product_type_id)
 
             ins = {
@@ -182,7 +183,8 @@ def uploadGoods(request):
                 "imgurl": filename
             }
             print(ins)
-            Products.objects.create(**ins)
+            insert_objects = Products.objects.create(**ins)
+            insert_objects.save()
             return JsonResponse({"code": "299"})
         except Exception as ex:
             print(ex)
@@ -231,18 +233,19 @@ def getGoods(request):
 
 
 def searchGoods(request):
-    print(1111111,request.GET.get('good'))
+    print(1111111, request.GET.get('good'))
     good = request.GET.get('good')
     index = int(request.GET.get('index'))
     try:
         max_price = request.GET.get('max_price')
         min_price = request.GET.get('min_price')
-        print(max_price,min_price)
+        print(max_price, min_price)
         data = db.taobao_goods.find(
-            {"$or": [{"belong_to": good}, {"belong_name": good}, {"title": {"$regex": good}}, {"address": good}],"price":{"$gt":float(min_price),"$lt":float(max_price)}}).limit(500).skip(index)
+            {"$or": [{"belong_to": good}, {"belong_name": good}, {"title": {"$regex": good}}, {"address": good}],
+             "price": {"$gt": float(min_price), "$lt": float(max_price)}}).limit(500).skip(index)
 
     except Exception as ex:
-        print("出现错误",ex)
+        print("出现错误", ex)
         data = db.taobao_goods.find(
             {"$or": [{"belong_to": good}, {"belong_name": good}, {"title": {"$regex": good}}, {"address": good}]}).sort(
             [("title", 1)]).limit(500).skip(index)
@@ -332,7 +335,7 @@ def paymentGuaranty(request):
         id = json.loads(request.body)["id"]
         selectAddressByUser = json.loads(request.body)["selectAddressByUser"]
         selectExpressByUser = json.loads(request.body)["selectExpressByUser"]
-        print("id是",id)
+        print("id是", id)
         res = db.order.update({"id": id}, {
             '$set': {"buyerSelectGood.guarantyStatus": 1, "buyerSelectGood.selectAddressByUser": selectAddressByUser,
                      "buyerSelectGood.selectExpressByUser": selectExpressByUser}})
@@ -352,15 +355,18 @@ def seeMyOrder(request):
         del i["_id"]
     print(res)
     return HttpResponse(json.dumps(res))
+
+
 def deleteMyOrder(request):
     if request.method == "POST":
         id = json.loads(request.body)["id"]
         user_id = json.loads(request.body)["user_id"]
-        res = db.order.remove({"id": str(id),"buyerSelectGood.user_id":user_id})
+        res = db.order.remove({"id": str(id), "buyerSelectGood.user_id": user_id})
         return HttpResponse("ok")
     else:
         # 请求失败
         return JsonResponse({"code": "510"})
+
 
 def showGoods(request):
     pass
@@ -380,7 +386,6 @@ def seeChange(request):
         i["_id"] = timestamp_from_objectid(i["_id"])
     print(1111111111, res)
     return HttpResponse(json.dumps(res))
-
 
 
 # 卖家同意交换请求
@@ -435,7 +440,7 @@ def insertData(request):
                 # two_res=Product_type_two.objects.create(**{"one_id_id":res_one.id,"product_type":j})
                 # print(222222,two_res)
                 #             连接数据库
-                conn = MongoClient('123.207.11.101', 27017)
+                conn = MongoClient('127.0.0.1', 27017)
                 db = conn.orsp  # 连接mydb数据库，没有则自动创建
                 # db.authenticate("root", "123456")
                 my_set = db.taobao_type.find({"name": j})
